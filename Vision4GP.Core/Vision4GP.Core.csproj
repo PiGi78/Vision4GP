@@ -1,7 +1,24 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>1.0.0</Version>
+    <Authors>Gianni Piolanti</Authors>
+    <Title>Library for work with Vision File System</Title>
+    <Description>This library allows you to access Vision File System, for now the Microfocus Extend AcuCobol one</Description>
+    <PackageProjectUrl>https://github.com/PiGi78/Vision4GP</PackageProjectUrl>
+    <PackageIcon>4gp.png</PackageIcon>
+    <PackageTags>Vision Cobol</PackageTags>
+    <Copyright>Copyright ©2020 4GP</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <NeutralLanguage>en</NeutralLanguage>
+    <RepositoryUrl>https://github.com/PiGi78/Vision4GP</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
+  <ItemGroup>
+      <None Include="..\4gp.png" Pack="true" PackagePath=""/>
+  </ItemGroup>
 </Project>
