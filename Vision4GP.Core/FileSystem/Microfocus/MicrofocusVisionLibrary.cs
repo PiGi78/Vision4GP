@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace Vision4GP.Core.FileSystem.Microfocus
+namespace Vision4GP.Core.Microfocus
 {
 
     /// <summary>
@@ -117,8 +117,9 @@ namespace Vision4GP.Core.FileSystem.Microfocus
         /// </summary>
         /// <param name="filePointer">File pointer</param>
         /// <param name="record">Record data (array char size must match the maximum file size)</param>
+        /// <param name="withLock">True for lock record</param>
         /// <returns>Number of readed chars (zero when the end of the file is reached)</returns>
-        MicrofocusFileIntResult V6_next(IntPtr filePointer, byte[] record);
+        MicrofocusFileIntResult V6_next(IntPtr filePointer, byte[] record, bool withLock = false);
 
 
         /// <summary>
@@ -126,8 +127,9 @@ namespace Vision4GP.Core.FileSystem.Microfocus
         /// </summary>
         /// <param name="filePointer">File pointer</param>
         /// <param name="record">Record data (array char size must match the maximum file size)</param>
+        /// <param name="withLock">True for lock record</param>
         /// <returns>Number of readed chars (zero when the begin of the file is reached)</returns>
-        MicrofocusFileIntResult V6_previous(IntPtr filePointer, byte[] record);
+        MicrofocusFileIntResult V6_previous(IntPtr filePointer, byte[] record, bool withLock = false);
 
 
         /// <summary>
@@ -139,8 +141,9 @@ namespace Vision4GP.Core.FileSystem.Microfocus
         /// <param name="filePointer">File pointer</param>
         /// <param name="record">Record data (array char size must match the maximum file size). In input there is the key to read, in output the full record</param>
         /// <param name="keyIndex">Key index to use (zero based)</param>
+        /// <param name="withLock">True for lock record</param>
         /// <returns>Number of readed chars (zero if not found)</returns>
-        MicrofocusFileIntResult V6_read(IntPtr filePointer, byte[] record, int keyIndex);
+        MicrofocusFileIntResult V6_read(IntPtr filePointer, byte[] record, int keyIndex, bool withLock = false);
 
 
         /// <summary>

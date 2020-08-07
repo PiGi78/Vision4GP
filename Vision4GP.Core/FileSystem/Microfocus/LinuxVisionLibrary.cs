@@ -2,7 +2,7 @@
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace Vision4GP.Core.FileSystem.Microfocus
+namespace Vision4GP.Core.Microfocus
 {
 
     /// <summary>
@@ -16,6 +16,8 @@ namespace Vision4GP.Core.FileSystem.Microfocus
         /// </summary>
         private class LinuxVisionLibrary : IMicrofocusVisionLibrary
         {
+
+            
             /// <summary>
             /// Object for synchronize the file operations
             /// </summary>
@@ -153,6 +155,7 @@ namespace Vision4GP.Core.FileSystem.Microfocus
                 var result = new MicrofocusFilePointerResult();
                 lock (SyncObj)
                 {
+                    SetLock(false);
                     result.Result = MicrofocusV6Open(filePath, mode, null);
                     result.StatusCode = GetLastOperationStatusCode();
                 }
@@ -164,8 +167,9 @@ namespace Vision4GP.Core.FileSystem.Microfocus
             /// </summary>
             /// <param name="filePointer">File pointer</param>
             /// <param name="record">Record data (array char size must match the maximum file size)</param>
+            /// <param name="withLock">True for lock the record</param>
             /// <returns>Number of readed chars (zero when the end of the file is reached)</returns>
-            public MicrofocusFileIntResult V6_next(IntPtr filePointer, byte[] record)
+            public MicrofocusFileIntResult V6_next(IntPtr filePointer, byte[] record, bool withLock = false)
             {
                 if (filePointer == IntPtr.Zero) throw new ArgumentOutOfRangeException("File pointer cannot be zero");
                 if (record == null) throw new ArgumentNullException(nameof(record));
@@ -173,6 +177,7 @@ namespace Vision4GP.Core.FileSystem.Microfocus
                 var result = new MicrofocusFileIntResult();
                 lock (SyncObj)
                 {
+                    SetLock(withLock);
                     result.Result = (int)MicrofocusV6Next(filePointer, record);
                     result.StatusCode = GetLastOperationStatusCode();
                 }
@@ -185,8 +190,9 @@ namespace Vision4GP.Core.FileSystem.Microfocus
             /// </summary>
             /// <param name="filePointer">File pointer</param>
             /// <param name="record">Record data (array char size must match the maximum file size)</param>
+            /// <param name="withLock">True for lock the record</param>
             /// <returns>Number of readed chars (zero when the begin of the file is reached)</returns>
-            public MicrofocusFileIntResult V6_previous(IntPtr filePointer, byte[] record)
+            public MicrofocusFileIntResult V6_previous(IntPtr filePointer, byte[] record, bool withLock = false)
             {
                 if (filePointer == IntPtr.Zero) throw new ArgumentOutOfRangeException("File pointer cannot be zero");
                 if (record == null) throw new ArgumentNullException(nameof(record));
@@ -194,6 +200,7 @@ namespace Vision4GP.Core.FileSystem.Microfocus
                 var result = new MicrofocusFileIntResult();
                 lock (SyncObj)
                 {
+                    SetLock(withLock);
                     result.Result = (int)MicrofocusV6Previous(filePointer, record);
                     result.StatusCode = GetLastOperationStatusCode();
                 }
@@ -209,8 +216,9 @@ namespace Vision4GP.Core.FileSystem.Microfocus
             /// <param name="filePointer">File pointer</param>
             /// <param name="record">Record data (array char size must match the maximum file size). In input there is the key to read, in output the full record</param>
             /// <param name="keyIndex">Key index to use (zero based)</param>
+            /// <param name="withLock">True for lock the record</param>
             /// <returns>Number of readed chars (zero if not found)</returns>
-            public MicrofocusFileIntResult V6_read(IntPtr filePointer, byte[] record, int keyIndex)
+            public MicrofocusFileIntResult V6_read(IntPtr filePointer, byte[] record, int keyIndex, bool withLock = false)
             {
                 if (filePointer == IntPtr.Zero) throw new ArgumentOutOfRangeException("File pointer cannot be zero");
                 if (record == null) throw new ArgumentNullException(nameof(record));
@@ -218,6 +226,7 @@ namespace Vision4GP.Core.FileSystem.Microfocus
                 var result = new MicrofocusFileIntResult();
                 lock (SyncObj)
                 {
+                    SetLock(withLock);
                     result.Result = (int)MicrofocusV6Read(filePointer, record, keyIndex);
                     result.StatusCode = GetLastOperationStatusCode();
                 }
@@ -360,7 +369,7 @@ namespace Vision4GP.Core.FileSystem.Microfocus
             }
 
 
-            #region Errors
+            #region Errors / Locks
 
             /// <summary>
             /// Gets the pointer to the Microfocus error code
@@ -369,6 +378,17 @@ namespace Vision4GP.Core.FileSystem.Microfocus
             private IntPtr Astdlib_f_errno()
             {
                 return MicrofocusAstdlibFErrno();
+            }
+
+
+            /// <summary>
+            /// Sets the library to use/not use locks
+            /// </summary>
+            /// <param name="lockValue">True to set lock, false to set no lock</param>
+            private void SetLock(bool lockValue)
+            {
+                var value = lockValue ? 1 : 0;
+                Marshal.WriteInt32(Astdlib_f_no_lock(), value);
             }
 
             /// <summary>

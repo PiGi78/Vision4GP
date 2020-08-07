@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
+using Vision4GP.Core.FileSystem;
 
-namespace Vision4GP.Core.FileSystem.Microfocus
+namespace Vision4GP.Core.Microfocus
 {
 
     /// <summary>
     /// Microfocus file definition factory
     /// </summary>
-    internal class MicrofocusFileDefinitionFactory : IVisionFileDefinitionFactory
+    internal class MicrofocusFileDefinitionLoader
     {
 
         // Microfocus namespace
@@ -18,17 +19,17 @@ namespace Vision4GP.Core.FileSystem.Microfocus
 
 
         /// <summary>
-        /// Gets a File definition based on XFD file
+        /// Gets a vision file definition based on its XFD file
         /// </summary>
         /// <param name="xfdFilePath">XFD file path</param>
         /// <returns>Requested file definition</returns>
-        public VisionFileDefinition CreateFromXfd(string xfdFilePath)
+        public VisionFileDefinition LoadFromXfd(string xfdFilePath)
         {
             if (string.IsNullOrEmpty(xfdFilePath)) throw new ArgumentNullException(nameof(xfdFilePath));
 
             if (!File.Exists(xfdFilePath))
             {
-                throw new ArgumentException(string.Format("File {0} not found", xfdFilePath), nameof(xfdFilePath));
+                throw new ArgumentException(string.Format("XFD file {0} not found", xfdFilePath), nameof(xfdFilePath));
             }
 
             // Load file
