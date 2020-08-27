@@ -1,7 +1,9 @@
 using System;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Xml.Serialization;
 using Vision4GP.Core.FileSystem;
 
 namespace Vision4GP.Core.Microfocus
@@ -105,6 +107,7 @@ namespace Vision4GP.Core.Microfocus
             if (record == null) throw new ArgumentNullException(nameof(record));
             
             var strValue = GetStringValue(fieldName, record);
+            if (string.IsNullOrEmpty(strValue)) return 0;
 
             var field = GetField(fieldName);
 
@@ -132,6 +135,7 @@ namespace Vision4GP.Core.Microfocus
             if (record == null) throw new ArgumentNullException(nameof(record));
             
             var strValue = GetStringValue(fieldName, record);
+            if (string.IsNullOrEmpty(strValue)) return 0;
 
             var field = GetField(fieldName);
 
@@ -379,12 +383,21 @@ namespace Vision4GP.Core.Microfocus
                 _emptyRecord = new byte[FileDefinition.MaxRecordSize];
                 var position = 0;
 
-                var zeroByte = Convert.ToByte("0");
-                var spaceByte = Convert.ToByte(" ");
-                var plusByte = Convert.ToByte("+");
+                var zeroByte = Convert.ToByte('0');
+                var spaceByte = Convert.ToByte(' ');
+                var plusByte = Convert.ToByte('+');
 
-                foreach (var field in FileDefinition.Fields.OrderBy(x => x.Offset))
+                foreach (var field in FileDefinition.Fields
+                                                    .Where(x => x.IsGroupField == false)
+                                                    .OrderBy(x => x.Offset))
                 {
+                    // If offset is after the current position, it means there is a filler
+                    while (position < field.Offset)
+                    {
+                        _emptyRecord[position] = spaceByte;
+                        position++;
+                    }
+                    // Field
                     for (int i = 0; i < field.Bytes; i++)
                     {
                         if (field.FieldType == VisionFieldType.Date ||

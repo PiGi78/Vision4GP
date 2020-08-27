@@ -392,7 +392,7 @@ namespace Vision4GP.Core.Microfocus
             private void SetLock(bool lockValue)
             {
                 var value = lockValue ? 1 : 0;
-                Marshal.WriteInt32(Astdlib_f_no_lock(), value);
+                // Marshal.WriteInt32(Astdlib_f_no_lock(), value);
             }
 
             /// <summary>
