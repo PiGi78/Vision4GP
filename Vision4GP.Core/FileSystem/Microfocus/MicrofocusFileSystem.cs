@@ -112,6 +112,16 @@ namespace Vision4GP.Core.Microfocus
         }
 
 
+        /// <summary>
+        /// Get the list of all file definitions
+        /// </summary>
+        /// <returns>List of files managed by the File System</returns>
+        public IEnumerable<VisionFileDefinition> GetFileDefinitions()
+        {
+            return FileDefinitions.Values;
+        }
+
+
         #region Initialize
 
         /// <summary>
