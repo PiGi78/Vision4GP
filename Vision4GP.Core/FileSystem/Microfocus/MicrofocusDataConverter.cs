@@ -222,11 +222,11 @@ namespace Vision4GP.Core.Microfocus
             {
                 if (field.FieldType == VisionFieldType.JustifiedString)
                 {
-                    strToSave.PadLeft(field.Bytes);
+                    strToSave = strToSave.PadLeft(field.Bytes);
                 }
                 else
                 {
-                    strToSave.PadRight(field.Bytes);
+                    strToSave = strToSave.PadRight(field.Bytes);
                 }
             }
 

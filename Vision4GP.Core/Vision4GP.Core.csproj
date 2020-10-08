@@ -4,7 +4,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.1.1</Version>
+    <Version>1.1.2</Version>
     <Authors>Gianni Piolanti</Authors>
     <Title>Library for work with Vision File System</Title>
     <Description>This library allows you to access Vision File System, for now the Microfocus Extend AcuCobol one</Description>

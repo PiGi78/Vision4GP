@@ -137,7 +137,7 @@ namespace Vision4GP.Core.Microfocus
             var initResult = MicrofocusVisionLibrary.V6_init();
             if (initResult == 0)
             {
-                throw new ApplicationException($"Error initializing legacy runtime.{Environment.NewLine}License file: {licenseFilePath}");
+                throw new ApplicationException($"Error initializing microfocus runtime.{Environment.NewLine}License file: {licenseFilePath}");
             }
         }
 
