@@ -237,6 +237,95 @@ namespace Vision4GP.Core.Microfocus
 
 
 
+
+        /// <summary>
+        /// Sets the value of a field
+        /// </summary>
+        /// <param name="fieldName">Name of the field</param>
+        /// <param name="record">Record where to put data</param>
+        /// <param name="value">Value to store</param>
+        public void SetValue(string fieldName, byte[] record, object value)
+        {
+            if (string.IsNullOrEmpty(fieldName)) throw new ArgumentNullException(nameof(fieldName));
+            if (record == null) throw new ArgumentNullException(nameof(record));
+            
+            var field = GetField(fieldName);
+
+            // Null value
+            if (value == null)
+            {
+                if (field.FieldType == VisionFieldType.Number)
+                {
+                    SetValue(fieldName, record, 0);
+                }
+                else
+                {
+                    SetValue(fieldName, record, "");
+                }
+                return;
+            }
+
+            // Other values
+            switch (field.FieldType)
+            {
+                case VisionFieldType.Date:
+                    var date = Convert.ToDateTime(value);
+                    SetValue(fieldName, record, value);
+                    break;
+                case VisionFieldType.Number:
+                    if (field.Scale > 0)
+                    {
+                        var decimalValue = Convert.ToDecimal(value);
+                        SetValue(fieldName, record, decimalValue);
+                    }
+                    else
+                    {
+                        var longValue = Convert.ToInt64(value);
+                        SetValue(fieldName, record, longValue);
+                    }
+                    break;
+                default:
+                    var strValue = value as string;
+                    if (string.IsNullOrEmpty(strValue))
+                    {
+                        strValue = value.ToString();
+                    }
+                    SetValue(fieldName, record, strValue);
+                    break;
+            }
+
+        }
+
+
+
+        /// <summary>
+        /// Get the value of a field
+        /// </summary>
+        /// <param name="fieldName">Name of the field</param>
+        /// <param name="record">Record where to take data</param>
+        /// <returns>Property value</returns>
+        public object GetValue(string fieldName, byte[] record)
+        {
+            if (string.IsNullOrEmpty(fieldName)) throw new ArgumentNullException(nameof(fieldName));
+            if (record == null) throw new ArgumentNullException(nameof(record));
+            
+            var field = GetField(fieldName);
+
+            switch (field.FieldType)
+            {
+                case VisionFieldType.Date:
+                    return GetDateValue(fieldName, record);
+                case VisionFieldType.Number:
+                    if (field.Scale > 0) return GetDecimalValue(fieldName, record);
+                    return GetLongValue(fieldName, record);
+                default:
+                    return GetStringValue(fieldName, record);
+            }
+
+        }
+
+
+
         /// <summary>
         /// Sets the value of a field
         /// </summary>
@@ -251,17 +340,27 @@ namespace Vision4GP.Core.Microfocus
 
             var field = GetField(fieldName);
 
-            // Sign
-            var strSign = "0";
+            // Size
             var size = field.Bytes;
+
+            // Sign
+            string strToSave;
             if (field.IsSigned)
             {
-                strSign = value > 0 ? "+" : "-";
-                size --;
+                size--;
+                string strSign = "+";
+                var valueToSave = value;
+                if (value < 0)
+                {
+                    strSign = "-";
+                    valueToSave *= -1;
+                }
+                strToSave = valueToSave.ToString(new string('0', size)) + strSign;
             }
-
-            // Value
-            var strToSave = value.ToString(new string('0', size)) + strSign;
+            else
+            {
+                strToSave = value.ToString(new string('0', size));
+            }
 
             SetValue(fieldName, record, strToSave);
         }
@@ -286,15 +385,24 @@ namespace Vision4GP.Core.Microfocus
             var size = field.Bytes;
 
             // Sign
-            var strSign = "0";
+            string strToSave;
             if (field.IsSigned)
             {
-                strSign = value > 0 ? "+" : "-";
-                size --;
+                size--;
+                string strSign = "+";
+                var valueToSave = value;
+                if (value < 0)
+                {
+                    strSign = "-";
+                    valueToSave *= -1;
+                }
+                strToSave = valueToSave.ToString(new string('0', size)) + strSign;
+            }
+            else
+            {
+                strToSave = value.ToString(new string('0', size));
             }
 
-            // Value
-            var strToSave = value.ToString(new string('0', size)) + strSign;
 
             SetValue(fieldName, record, strToSave);
         }
@@ -317,28 +425,35 @@ namespace Vision4GP.Core.Microfocus
 
             // Size
             var size = field.Bytes;
+            var valueToSave = value;
 
             // Sign
-            var strSign = "0";
+            string strToSave;
             if (field.IsSigned)
             {
-                strSign = value > 0 ? "+" : "-";
-                size --;
+                size--;
+                string strSign = "+";
+                if (valueToSave < 0)
+                {
+                    strSign = "-";
+                    valueToSave *= -1;
+                }
+                valueToSave *= (decimal)Math.Pow(10, field.Scale);
+                strToSave = valueToSave.ToString(new string('0', size)) + strSign;
             }
-
-            // No decimal digits
-            var valueToSave = value * (decimal)Math.Pow(10, field.Scale);
-
-            // Value
-            var strToSave = valueToSave.ToString(new string('0', size)) + strSign;
-
+            else
+            {
+                valueToSave *= (decimal)Math.Pow(10, field.Scale);
+                strToSave = valueToSave.ToString(new string('0', size));
+            }
+            
             SetValue(fieldName, record, strToSave);
         }
 
 
 
         /// <summary>
-        /// Sets the value of a field
+        /// /// Sets the value of a field
         /// </summary>
         /// <param name="fieldName">Name of the field</param>
         /// <param name="record">Record where to put data</param>
@@ -388,9 +503,10 @@ namespace Vision4GP.Core.Microfocus
                 var plusByte = Convert.ToByte('+');
 
                 foreach (var field in FileDefinition.Fields
-                                                    .Where(x => x.IsGroupField == false)
+                                                    .Where(x => !x.IsGroupField)
                                                     .OrderBy(x => x.Offset))
                 {
+                    if (field.Offset < position) continue;
                     // If offset is after the current position, it means there is a filler
                     while (position < field.Offset)
                     {
@@ -398,13 +514,14 @@ namespace Vision4GP.Core.Microfocus
                         position++;
                     }
                     // Field
+                    var lastByte = field.Bytes - 1;
                     for (int i = 0; i < field.Bytes; i++)
                     {
                         if (field.FieldType == VisionFieldType.Date ||
                             field.FieldType == VisionFieldType.Number)
                         {
                             _emptyRecord[position] = zeroByte;
-                            if (field.IsSigned && i == field.Bytes)
+                            if (field.IsSigned && i == lastByte)
                             {
                                 _emptyRecord[position] = plusByte;
                             }

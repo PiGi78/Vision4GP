@@ -85,7 +85,7 @@ namespace Vision4GP.Core.FileSystem
         /// </summary>
         /// <param name="propertyName">Name of the property</param>
         /// <param name="value">Property value</param>
-        void SetDecimalValue(string propertyName, string value);
+        void SetDecimalValue(string propertyName, decimal value);
 
 
         
@@ -103,6 +103,22 @@ namespace Vision4GP.Core.FileSystem
         /// <param name="propertyName">Name of the property</param>
         /// <param name="value">Property value</param>
         void SetDateValue(string propertyName, DateTime? value);
+
+
+        /// <summary>
+        /// Set the value of a property
+        /// </summary>
+        /// <param name="propertyName">Name of the property</param>
+        /// <param name="value">Property value</param>
+        void SetValue(string propertyName, object value);
+
+
+        /// <summary>
+        /// Get the value of a property
+        /// </summary>
+        /// <param name="propertyName">Name of the property</param>
+        /// <returns>Value of the property</returns>
+        object GetValue(string propertyName);
 
     }
 }

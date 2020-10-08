@@ -156,7 +156,7 @@ namespace Vision4GP.Core.Microfocus
         /// </summary>
         /// <param name="propertyName">Name of the property</param>
         /// <param name="value">Property value</param>
-        public void SetDecimalValue(string propertyName, string value)
+        public void SetDecimalValue(string propertyName, decimal value)
         {
             if (string.IsNullOrEmpty(propertyName)) throw new ArgumentNullException(nameof(propertyName));
             Converter.SetValue(propertyName, RawContent, value);
@@ -182,6 +182,33 @@ namespace Vision4GP.Core.Microfocus
         /// <param name="propertyName">Name of the property</param>
         /// <param name="value">Property value</param>
         public void SetDateValue(string propertyName, DateTime? value)
+        {
+            if (string.IsNullOrEmpty(propertyName)) throw new ArgumentNullException(nameof(propertyName));
+            Converter.SetValue(propertyName, RawContent, value);
+        }
+
+
+
+
+        
+        /// <summary>
+        /// Gets the value of a property
+        /// </summary>
+        /// <param name="propertyName">Name of the property</param>
+        /// <returns>Value of the property</returns>
+        public object GetValue(string propertyName)
+        {
+            if (string.IsNullOrEmpty(propertyName)) throw new ArgumentNullException(nameof(propertyName));
+            return Converter.GetValue(propertyName, RawContent);
+        }
+
+
+        /// <summary>
+        /// Set the value of  property
+        /// </summary>
+        /// <param name="propertyName">Name of the property</param>
+        /// <param name="value">Property value</param>
+        public void SetValue(string propertyName, object value)
         {
             if (string.IsNullOrEmpty(propertyName)) throw new ArgumentNullException(nameof(propertyName));
             Converter.SetValue(propertyName, RawContent, value);
