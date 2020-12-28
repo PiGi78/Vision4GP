@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -45,18 +46,22 @@ namespace Vision4GP.Core.Microfocus
         private VisionFieldDefinition GetField(string fieldName)
         {
             if (string.IsNullOrEmpty(fieldName)) throw new ArgumentNullException(nameof(fieldName));
-            
+            if (_fieldsCache.ContainsKey(fieldName)) return _fieldsCache[fieldName];
             var nameToCheck = fieldName.ToUpper().Replace("-", "_");
             foreach (var field in FileDefinition.Fields)
             {
                 if (field.Name.ToUpper().Replace("-", "_") == nameToCheck)
                 {
+                    _fieldsCache[fieldName] = field;
                     return field;
                 }
             }
 
             throw new ApplicationException($"Cannot find field {fieldName} in file {FileDefinition.FileName}");
         }
+
+
+        private Dictionary<string, VisionFieldDefinition> _fieldsCache = new Dictionary<string, VisionFieldDefinition>();
 
 
         /// <summary>

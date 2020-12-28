@@ -9,11 +9,11 @@ namespace Vision4GP.Core.FileSystem
         /// <summary>
         /// Opens a file in read only mode
         /// </summary>
-        Input,
+        Input = 0,
         /// <summary>
         /// Opens a file for read and write
         /// </summary>
-        InputOutput
+        InputOutput = 2
     }
 
 }

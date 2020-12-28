@@ -27,6 +27,7 @@ namespace Vision4GP.Core.Microfocus
             FileDefinition = fileDefinition ?? throw new ArgumentNullException(nameof(fileDefinition));
             FilePath = filePath ?? throw new ArgumentNullException(nameof(filePath));
             VisionLibrary = visionLibrary ?? throw new ArgumentNullException(nameof(visionLibrary));
+            DataConverter = new MicrofocusDataConverter(FileDefinition);
         }
 
 
@@ -34,6 +35,12 @@ namespace Vision4GP.Core.Microfocus
         /// File definition
         /// </summary>
         private VisionFileDefinition FileDefinition { get; }
+
+
+        /// <summary>
+        /// Data converter
+        /// </summary>
+        private MicrofocusDataConverter DataConverter { get; }
 
 
         /// <summary>
@@ -75,7 +82,7 @@ namespace Vision4GP.Core.Microfocus
         /// </summary>
         public IVisionRecord GetNewRecord()
         {
-            return new MicrofocusVisionRecord(FileDefinition);
+            return new MicrofocusVisionRecord(FileDefinition, DataConverter);
         }
 
         /// <summary>
@@ -116,7 +123,7 @@ namespace Vision4GP.Core.Microfocus
             if (!IsOpen) throw new IOException($"File not opened. File name: {FilePath}");
             EnsureKeyIndexIsValid(keyIndex);
 
-            var recordToUse = record ?? new MicrofocusVisionRecord(FileDefinition);
+            var recordToUse = record ?? new MicrofocusVisionRecord(FileDefinition, DataConverter);
 
             var microfocusResult = VisionLibrary.V6_start(FilePointer, recordToUse.GetRawContent(), keyIndex, 0, (int)mode);
 
@@ -156,7 +163,7 @@ namespace Vision4GP.Core.Microfocus
             // OK
             if (microfocusResult.StatusCode.IsOkStatus())
             {
-                var result = new MicrofocusVisionRecord(FileDefinition);
+                var result = new MicrofocusVisionRecord(FileDefinition, DataConverter);
                 result.SetRawContent(content);
                 return result;
             }
@@ -186,7 +193,7 @@ namespace Vision4GP.Core.Microfocus
             // OK
             if (microfocusResult.StatusCode.IsOkStatus())
             {
-                var result = new MicrofocusVisionRecord(FileDefinition);
+                var result = new MicrofocusVisionRecord(FileDefinition, DataConverter);
                 result.SetRawContent(content);
                 return result;
             }
@@ -216,7 +223,7 @@ namespace Vision4GP.Core.Microfocus
             // OK
             if (microfocusResult.StatusCode.IsOkStatus())
             {
-                var result = new MicrofocusVisionRecord(FileDefinition);
+                var result = new MicrofocusVisionRecord(FileDefinition, DataConverter);
                 result.SetRawContent(content);
                 return result;
             }
@@ -246,7 +253,7 @@ namespace Vision4GP.Core.Microfocus
             // OK
             if (microfocusResult.StatusCode.IsOkStatus())
             {
-                var result = new MicrofocusVisionRecord(FileDefinition);
+                var result = new MicrofocusVisionRecord(FileDefinition, DataConverter);
                 result.SetRawContent(content);
                 return result;
             }
@@ -279,7 +286,7 @@ namespace Vision4GP.Core.Microfocus
             // OK
             if (microfocusResult.StatusCode.IsOkStatus())
             {
-                var result = new MicrofocusVisionRecord(FileDefinition);
+                var result = new MicrofocusVisionRecord(FileDefinition, DataConverter);
                 result.SetRawContent(content);
                 return result;
             }
@@ -311,7 +318,7 @@ namespace Vision4GP.Core.Microfocus
             // OK
             if (microfocusResult.StatusCode.IsOkStatus())
             {
-                var result = new MicrofocusVisionRecord(FileDefinition);
+                var result = new MicrofocusVisionRecord(FileDefinition, DataConverter);
                 result.SetRawContent(content);
                 return result;
             }
@@ -347,7 +354,7 @@ namespace Vision4GP.Core.Microfocus
 
             if (!microfocusResult.StatusCode.IsOkStatus())
             {
-                throw new VisionFileException((int)microfocusResult.StatusCode, $"Error {(int)microfocusResult.StatusCode} on read lock on file {FilePath}");  
+                throw new VisionFileException((int)microfocusResult.StatusCode, $"Error {(int)microfocusResult.StatusCode} on write on file {FilePath}");  
             }
         }
 
@@ -365,7 +372,7 @@ namespace Vision4GP.Core.Microfocus
 
             if (!microfocusResult.StatusCode.IsOkStatus())
             {
-                throw new VisionFileException((int)microfocusResult.StatusCode, $"Error {(int)microfocusResult.StatusCode} on read lock on file {FilePath}");  
+                throw new VisionFileException((int)microfocusResult.StatusCode, $"Error {(int)microfocusResult.StatusCode} on rewrite on file {FilePath}");  
             }
         }
 
@@ -383,7 +390,7 @@ namespace Vision4GP.Core.Microfocus
 
             if (!microfocusResult.StatusCode.IsOkStatus())
             {
-                throw new VisionFileException((int)microfocusResult.StatusCode, $"Error {(int)microfocusResult.StatusCode} on read lock on file {FilePath}");  
+                throw new VisionFileException((int)microfocusResult.StatusCode, $"Error {(int)microfocusResult.StatusCode} on delete on file {FilePath}");  
             }
         }
 
