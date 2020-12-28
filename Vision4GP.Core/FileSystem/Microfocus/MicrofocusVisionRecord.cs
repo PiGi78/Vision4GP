@@ -14,11 +14,12 @@ namespace Vision4GP.Core.Microfocus
         /// Creates a new instance of Microfocus Vision record
         /// </summary>
         /// <param name="fileDefinition">Definition of the file</param>
-        internal MicrofocusVisionRecord(VisionFileDefinition fileDefinition)
+        /// <param name="dataConverter">Data converter between byte array (raw data) and .NET types</param>
+        internal MicrofocusVisionRecord(VisionFileDefinition fileDefinition, MicrofocusDataConverter dataConverter)
         {
             FileDefinition = fileDefinition ?? throw new ArgumentNullException(nameof(fileDefinition));
-            Converter = new MicrofocusDataConverter(FileDefinition);
-            RawContent = Converter.GetEmptyRecordContent();
+            DataConverter = dataConverter ?? throw new ArgumentNullException(nameof(dataConverter));
+            RawContent = DataConverter.GetEmptyRecordContent();
         }
 
 
@@ -31,7 +32,7 @@ namespace Vision4GP.Core.Microfocus
         /// <summary>
         /// Data converter
         /// </summary>
-        private MicrofocusDataConverter Converter { get; }
+        private MicrofocusDataConverter DataConverter { get; }
 
 
         /// <summary>
@@ -73,7 +74,7 @@ namespace Vision4GP.Core.Microfocus
         public string GetStringValue(string propertyName)
         {
             if (string.IsNullOrEmpty(propertyName)) throw new ArgumentNullException(nameof(propertyName));
-            return Converter.GetStringValue(propertyName, RawContent);
+            return DataConverter.GetStringValue(propertyName, RawContent);
         }
 
 
@@ -85,7 +86,7 @@ namespace Vision4GP.Core.Microfocus
         public void SetStringValue(string propertyName, string value)
         {
             if (string.IsNullOrEmpty(propertyName)) throw new ArgumentNullException(nameof(propertyName));
-            Converter.SetValue(propertyName, RawContent, value);
+            DataConverter.SetValue(propertyName, RawContent, value);
         }
 
 
@@ -98,7 +99,7 @@ namespace Vision4GP.Core.Microfocus
         public int GetIntValue(string propertyName)
         {
             if (string.IsNullOrEmpty(propertyName)) throw new ArgumentNullException(nameof(propertyName));
-            return Converter.GetIntValue(propertyName, RawContent);
+            return DataConverter.GetIntValue(propertyName, RawContent);
         }
 
 
@@ -110,7 +111,7 @@ namespace Vision4GP.Core.Microfocus
         public void SetIntValue(string propertyName, int value)
         {
             if (string.IsNullOrEmpty(propertyName)) throw new ArgumentNullException(nameof(propertyName));
-            Converter.SetValue(propertyName, RawContent, value);
+            DataConverter.SetValue(propertyName, RawContent, value);
         }
 
 
@@ -122,7 +123,7 @@ namespace Vision4GP.Core.Microfocus
         public long GetLongValue(string propertyName)
         {
             if (string.IsNullOrEmpty(propertyName)) throw new ArgumentNullException(nameof(propertyName));
-            return Converter.GetLongValue(propertyName, RawContent);
+            return DataConverter.GetLongValue(propertyName, RawContent);
         }
 
 
@@ -134,7 +135,7 @@ namespace Vision4GP.Core.Microfocus
         public void SetLongValue(string propertyName, long value)
         {
             if (string.IsNullOrEmpty(propertyName)) throw new ArgumentNullException(nameof(propertyName));
-            Converter.SetValue(propertyName, RawContent, value);
+            DataConverter.SetValue(propertyName, RawContent, value);
         }
 
 
@@ -147,7 +148,7 @@ namespace Vision4GP.Core.Microfocus
         public decimal GetDecimalValue(string propertyName)
         {
             if (string.IsNullOrEmpty(propertyName)) throw new ArgumentNullException(nameof(propertyName));
-            return Converter.GetDecimalValue(propertyName, RawContent);
+            return DataConverter.GetDecimalValue(propertyName, RawContent);
         }
 
 
@@ -159,7 +160,7 @@ namespace Vision4GP.Core.Microfocus
         public void SetDecimalValue(string propertyName, decimal value)
         {
             if (string.IsNullOrEmpty(propertyName)) throw new ArgumentNullException(nameof(propertyName));
-            Converter.SetValue(propertyName, RawContent, value);
+            DataConverter.SetValue(propertyName, RawContent, value);
         }
 
 
@@ -172,7 +173,7 @@ namespace Vision4GP.Core.Microfocus
         public DateTime? GetDateValue(string propertyName)
         {
             if (string.IsNullOrEmpty(propertyName)) throw new ArgumentNullException(nameof(propertyName));
-            return Converter.GetDateValue(propertyName, RawContent);
+            return DataConverter.GetDateValue(propertyName, RawContent);
         }
 
 
@@ -184,7 +185,7 @@ namespace Vision4GP.Core.Microfocus
         public void SetDateValue(string propertyName, DateTime? value)
         {
             if (string.IsNullOrEmpty(propertyName)) throw new ArgumentNullException(nameof(propertyName));
-            Converter.SetValue(propertyName, RawContent, value);
+            DataConverter.SetValue(propertyName, RawContent, value);
         }
 
 
@@ -199,7 +200,7 @@ namespace Vision4GP.Core.Microfocus
         public object GetValue(string propertyName)
         {
             if (string.IsNullOrEmpty(propertyName)) throw new ArgumentNullException(nameof(propertyName));
-            return Converter.GetValue(propertyName, RawContent);
+            return DataConverter.GetValue(propertyName, RawContent);
         }
 
 
@@ -211,7 +212,7 @@ namespace Vision4GP.Core.Microfocus
         public void SetValue(string propertyName, object value)
         {
             if (string.IsNullOrEmpty(propertyName)) throw new ArgumentNullException(nameof(propertyName));
-            Converter.SetValue(propertyName, RawContent, value);
+            DataConverter.SetValue(propertyName, RawContent, value);
         }
 
 
@@ -221,7 +222,7 @@ namespace Vision4GP.Core.Microfocus
         /// <returns>Cloned record</returns>
         public object Clone()
         {
-            var clone = new MicrofocusVisionRecord(FileDefinition);
+            var clone = new MicrofocusVisionRecord(FileDefinition, DataConverter);
             var newContent = new byte[FileDefinition.MaxRecordSize];
             Array.Copy(RawContent, newContent, FileDefinition.MaxRecordSize);
             clone.SetRawContent(newContent);
