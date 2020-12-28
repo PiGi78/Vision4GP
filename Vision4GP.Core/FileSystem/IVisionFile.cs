@@ -12,6 +12,11 @@ namespace Vision4GP.Core.FileSystem
     {
 
         /// <summary>
+        /// Full path of the file
+        /// </summary>
+        string FilePath { get; }
+
+        /// <summary>
         /// Get a new record
         /// </summary>
         IVisionRecord GetNewRecord();

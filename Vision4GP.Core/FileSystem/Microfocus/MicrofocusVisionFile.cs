@@ -39,7 +39,7 @@ namespace Vision4GP.Core.Microfocus
         /// <summary>
         /// File path
         /// </summary>
-        private string FilePath { get; }
+        public string FilePath { get; }
 
 
         /// <summary>
