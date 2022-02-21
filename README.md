@@ -28,7 +28,8 @@ Suppose to have the customer vision file that has this record definition:
 
 To read all records of a file, we have to write this code:
 
-    using (var file = FileSystem.GetVisionFile("customer"))
+    var fileSystem = VisionFileSystem.GetInstance();
+    using (var file = fileSystem.GetVisionFile("customer"))
     {
        file.Open(FileOpenMode.Input);
        if (file.Start())
@@ -51,7 +52,8 @@ To read all records of a file, we have to write this code:
 
 To read the record with CUST-CODE equal 5, we have to write this code:
 
-    using (var file = FileSystem.GetVisionFile("customer"))
+    var fileSystem = VisionFileSystem.GetInstance();
+    using (var file = fileSystem.GetVisionFile("customer"))
     {
        var record = file.GetNewRecord();
        record.SetValue("CUST_CODE", 5); // can use also the SetInt method
@@ -70,7 +72,8 @@ To read the record with CUST-CODE equal 5, we have to write this code:
 
 To change the name of the customer with CUST-CODE equal 5, we have to write this code:
 
-    using (var file = FileSystem.GetVisionFile("customer"))
+    var fileSystem = VisionFileSystem.GetInstance();
+    using (var file = fileSystem.GetVisionFile("customer"))
     {
        var record = file.GetNewRecord();
        record.SetValue("CUST_CODE", 5); // can use also the SetInt method
@@ -89,7 +92,8 @@ To change the name of the customer with CUST-CODE equal 5, we have to write this
 
 To delete the record with CUST-CODE equal 5, we have to write this code:
 
-    using (var file = FileSystem.GetVisionFile("customer"))
+    var fileSystem = VisionFileSystem.GetInstance();
+    using (var file = fileSystem.GetVisionFile("customer"))
     {
        var record = file.GetNewRecord();
        record.SetValue("CUST_CODE", 5); // can use also the SetInt method
