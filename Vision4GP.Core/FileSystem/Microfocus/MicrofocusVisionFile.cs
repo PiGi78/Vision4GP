@@ -4,6 +4,7 @@ using System.Dynamic;
 using System.IO;
 using System.Threading;
 using Vision4GP.Core.FileSystem;
+using System.Linq;
 
 namespace Vision4GP.Core.Microfocus
 {
@@ -93,7 +94,13 @@ namespace Vision4GP.Core.Microfocus
         {
             if (IsOpen) throw new IOException($"File {FilePath} is already opened");
 
-            if (!File.Exists(FilePath)) throw new FileNotFoundException("Cannot open the file", FilePath);
+            if (!File.Exists(FilePath) && mode == FileOpenMode.Input) throw new FileNotFoundException("Cannot open the file", FilePath);
+
+            if (mode == FileOpenMode.Output)
+            {
+                var createResult = CreateFile();
+                if (createResult.Result == 0) throw new VisionFileException((int)createResult.StatusCode, $"Error creating the file {FilePath}");
+            }
 
             var microfocusResult = VisionLibrary.V6_open(FilePath, (int)mode);
 
@@ -108,6 +115,19 @@ namespace Vision4GP.Core.Microfocus
 
             // Error
             throw new VisionFileException((int)microfocusResult.StatusCode, $"Error {(int)microfocusResult.StatusCode} opening file {FilePath}");
+        }
+
+        /// <summary>
+        /// Creates the file
+        /// </summary>
+        /// <returns>Result of the creation</returns>
+        private MicrofocusFileIntResult CreateFile()
+        {
+            if (string.IsNullOrEmpty(FilePath)) throw new NullReferenceException($"File path cannot be null");
+
+            var l_params = $"{FileDefinition.MaxRecordSize},{FileDefinition.MinRecordSize},{FileDefinition.NumberOfKeys}";
+            var keys = String.Join(',', FileDefinition.Keys.Select(x => x.V6InfoString));
+            return VisionLibrary.V6_make(FilePath, l_params, keys);
         }
 
 

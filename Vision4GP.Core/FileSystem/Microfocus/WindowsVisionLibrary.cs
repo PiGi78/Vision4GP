@@ -57,6 +57,9 @@ namespace Vision4GP.Core.Microfocus
 
             [DllImport(MICROFOCUST_VISION_DLL, EntryPoint = "v6_exit")]
             private static extern void MicrofocusV6Exit();
+            
+            [DllImport(MICROFOCUST_VISION_DLL, EntryPoint = "v6_make")]
+            private static extern IntPtr MicrofocusV6Make(string filePath, string unused0, string unused1, string l_params, string keys, string unused2);
 
             [DllImport(MICROFOCUST_VISION_DLL, EntryPoint = "v6_open")]
             private static extern IntPtr MicrofocusV6Open(string fileName, int mode, string unused0);
@@ -142,7 +145,28 @@ namespace Vision4GP.Core.Microfocus
             #endregion
 
 
+            
+            /// <summary>
+            /// Creates a new file
+            /// </summary>
+            /// <param name="filePath">Path of the file</param>
+            /// <param name="l_params">Describes various logical caharacteristics of the file</param>
+            /// <param name="keys">Describes the key structure of the file</param>
+            /// <returns></returns>
+            public MicrofocusFileIntResult V6_make(string filePath, string l_params, string keys)
+            {
+                if (string.IsNullOrEmpty(filePath)) throw new ArgumentNullException(nameof(filePath));
+                if (File.Exists(filePath)) throw new ApplicationException($"File {filePath} already exists");
 
+                
+                var result = new MicrofocusFileIntResult();
+                lock (SyncObj)
+                {
+                    result.Result = (int)MicrofocusV6Make(filePath, null, null, l_params, keys, null);
+                    result.StatusCode = GetLastOperationStatusCode();
+                }
+                return result;
+            }
 
 
             /// <summary>

@@ -68,11 +68,6 @@ namespace Vision4GP.Core.Microfocus
 
             // Check for the file
             var pathToUse = LoadFullFilePath(filePath);
-            if (string.IsNullOrEmpty(pathToUse) || 
-                !File.Exists(pathToUse))
-            {
-                throw new FileNotFoundException($"File {filePath} not found", filePath);
-            }
 
             // Look for the definition
             var fileName = Path.GetFileName(pathToUse).ToUpperInvariant();
@@ -102,13 +97,15 @@ namespace Vision4GP.Core.Microfocus
                 filePrefix = Environment.CurrentDirectory;
             }
 
+            string firstPath = null;
             foreach (var dir in filePrefix.Split(Path.PathSeparator))
             {
                 var path = Path.Combine(dir, filePath);
+                if (firstPath == null) firstPath = path;
                 if (File.Exists(path)) return path;
             }
 
-            return null;
+            return firstPath;
         }
 
 

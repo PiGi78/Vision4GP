@@ -11,6 +11,10 @@ namespace Vision4GP.Core.FileSystem
         /// </summary>
         Input = 0,
         /// <summary>
+        /// Opens a file in write only mode
+        /// </summary>
+        Output = 1,
+        /// <summary>
         /// Opens a file for read and write
         /// </summary>
         InputOutput = 2

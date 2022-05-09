@@ -104,12 +104,22 @@ namespace Vision4GP.Core.Microfocus
 
 
         /// <summary>
+        /// Creates a new file
+        /// </summary>
+        /// <param name="fileName">Path of the file</param>
+        /// <param name="l_params">Describes various logical caharacteristics of the file</param>
+        /// <param name="keys">Describes the key structure of the file</param>
+        /// <returns></returns>
+        MicrofocusFileIntResult V6_make(string fileName, string l_params, string keys);
+
+        /// <summary>
         /// Open a file
         /// </summary>
         /// <param name="fileName">File name</param>
         /// <param name="mode">Open mode</param>
         /// <returns>Pointer to the file</returns>
         MicrofocusFilePointerResult V6_open(string fileName, int mode);
+
 
 
         /// <summary>

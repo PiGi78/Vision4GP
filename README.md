@@ -9,7 +9,7 @@ For work with it, you need:
 - A specific license from Microfocus to use their V6 library ( libvision64.so for Linux, avision6.dll for Windows)
 - FILE_PREFIX environment (where to find the vision file)
 - XFD_DIRECTORY environment (where to find xfd files)
-- VISION_LICENSE_FILE environment (full path ot the Microfocus license file)
+- VISION_LICENSE_FILE environment (full path of the Microfocus license file)
 
 
 ## How to use the library
@@ -58,7 +58,7 @@ To read the record with CUST-CODE equal 5, we have to write this code:
        var record = file.GetNewRecord();
        record.SetValue("CUST_CODE", 5); // can use also the SetInt method
        file.Open(FileOpenMode.Input);
-       record = file.ReadLock(record);
+       record = file.Read(record);
        if (record != null)
        {
            Console.WriteLine($"Code: {record.GetValue("CUST_CODE")}");
