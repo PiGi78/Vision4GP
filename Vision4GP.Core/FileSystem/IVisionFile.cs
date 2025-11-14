@@ -40,28 +40,28 @@ namespace Vision4GP.Core.FileSystem
         /// Read the next record without lock
         /// </summary>
         /// <returns>Next record or null if no more records</returns>
-        IVisionRecord ReadNext();
+        IVisionRecord? ReadNext();
 
 
         /// <summary>
         /// Read the next record with lock
         /// </summary>
         /// <returns>Next record or null if no more records</returns>
-        IVisionRecord ReadNextLock();
+        IVisionRecord? ReadNextLock();
 
 
         /// <summary>
         /// Read the previous record without lock
         /// </summary>
         /// <returns>Previous record or null if no more records</returns>
-        IVisionRecord ReadPrevious();
+        IVisionRecord? ReadPrevious();
 
 
         /// <summary>
         /// Read the previous record with lock
         /// </summary>
         /// <returns>Previous record or null if no more records</returns>
-        IVisionRecord ReadPreviousLock();
+        IVisionRecord? ReadPreviousLock();
 
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace Vision4GP.Core.FileSystem
         /// <param name="keyValue">Value of the key</param>
         /// <param name="keyIndex">Index of the key</param>
         /// <returns>Locked record, null if not found</returns>
-        IVisionRecord Read(IVisionRecord keyValue, int keyIndex = 0);
+        IVisionRecord? Read(IVisionRecord keyValue, int keyIndex = 0);
 
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace Vision4GP.Core.FileSystem
         /// <param name="keyValue">Value of the key</param>
         /// <param name="keyIndex">Index of the key</param>
         /// <returns>Locked record, null if not found</returns>
-        IVisionRecord ReadLock(IVisionRecord keyValue, int keyIndex = 0);
+        IVisionRecord? ReadLock(IVisionRecord keyValue, int keyIndex = 0);
 
 
         /// <summary>

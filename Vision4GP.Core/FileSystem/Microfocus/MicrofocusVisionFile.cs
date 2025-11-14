@@ -1,10 +1,7 @@
 using System;
-using System.Collections.Generic;
-using System.Dynamic;
 using System.IO;
-using System.Threading;
-using Vision4GP.Core.FileSystem;
 using System.Linq;
+using Vision4GP.Core.FileSystem;
 
 namespace Vision4GP.Core.Microfocus
 {
@@ -138,7 +135,7 @@ namespace Vision4GP.Core.Microfocus
         /// <param name="record">Record to use for start (null = start from the beginning)</param>
         /// <param name="mode">Vision start mode</param>
         /// <returns>True if the starts is ok, otherwise false</returns>
-        public bool Start(int keyIndex = 0, IVisionRecord record = null, FileStartMode mode = FileStartMode.GreaterOrEqual)
+        public bool Start(int keyIndex = 0, IVisionRecord? record = null, FileStartMode mode = FileStartMode.GreaterOrEqual)
         {
             if (!IsOpen) throw new IOException($"File not opened. File name: {FilePath}");
             EnsureKeyIndexIsValid(keyIndex);
@@ -172,7 +169,7 @@ namespace Vision4GP.Core.Microfocus
         /// Read the next record without lock
         /// </summary>
         /// <returns>Next record or null if no more records</returns>
-        public IVisionRecord ReadNext()
+        public IVisionRecord? ReadNext()
         {
             if (!IsOpen) throw new IOException($"File not opened. File name: {FilePath}");
 
@@ -200,14 +197,12 @@ namespace Vision4GP.Core.Microfocus
         /// Read the next record with lock
         /// </summary>
         /// <returns>Next record or null if no more records</returns>
-        public IVisionRecord ReadNextLock()
+        public IVisionRecord? ReadNextLock()
         {
             if (!IsOpen) throw new IOException($"File not opened. File name: {FilePath}");
             if (CurrentOpenMode == FileOpenMode.Input) throw new IOException($"File {FilePath} cannot be locked since it was open in read-only mode");
 
             var content = new byte[FileDefinition.MaxRecordSize];
-
-
             var microfocusResult = VisionLibrary.V6_next(FilePointer, content, withLock: true);
 
             // OK
@@ -231,13 +226,11 @@ namespace Vision4GP.Core.Microfocus
         /// Read the previous record without lock
         /// </summary>
         /// <returns>Previous record or null if no more records</returns>
-        public IVisionRecord ReadPrevious()
+        public IVisionRecord? ReadPrevious()
         {
             if (!IsOpen) throw new IOException($"File not opened. File name: {FilePath}");
             
             var content = new byte[FileDefinition.MaxRecordSize];
-
-
             var microfocusResult = VisionLibrary.V6_previous(FilePointer, content, withLock: false);
 
             // OK
@@ -260,14 +253,12 @@ namespace Vision4GP.Core.Microfocus
         /// Read the previous record with lock
         /// </summary>
         /// <returns>Previous record or null if no more records</returns>
-        public IVisionRecord ReadPreviousLock()
+        public IVisionRecord? ReadPreviousLock()
         {
             if (!IsOpen) throw new IOException($"File not opened. File name: {FilePath}");
             if (CurrentOpenMode == FileOpenMode.Input) throw new IOException($"File {FilePath} cannot be locked since it was open in read-only mode");
 
             var content = new byte[FileDefinition.MaxRecordSize];
-
-
             var microfocusResult = VisionLibrary.V6_previous(FilePointer, content, withLock: true);
 
             // OK
@@ -292,7 +283,7 @@ namespace Vision4GP.Core.Microfocus
         /// <param name="keyValue">Value of the key</param>
         /// <param name="keyIndex">Index of the key</param>
         /// <returns>Locked record, null if not found</returns>
-        public IVisionRecord ReadLock(IVisionRecord keyValue, int keyIndex = 0)
+        public IVisionRecord? ReadLock(IVisionRecord keyValue, int keyIndex = 0)
         {
             if (!IsOpen) throw new IOException($"File not opened. File name: {FilePath}");
             if (CurrentOpenMode == FileOpenMode.Input) throw new IOException($"File {FilePath} cannot be locked since it was open in read-only mode");
@@ -325,7 +316,7 @@ namespace Vision4GP.Core.Microfocus
         /// <param name="keyValue">Value of the key</param>
         /// <param name="keyIndex">Index of the key</param>
         /// <returns>readed record, null if not found</returns>
-        public IVisionRecord Read(IVisionRecord keyValue, int keyIndex = 0)
+        public IVisionRecord? Read(IVisionRecord keyValue, int keyIndex = 0)
         {
             if (!IsOpen) throw new IOException($"File not opened. File name: {FilePath}");
             EnsureKeyIndexIsValid(keyIndex);
