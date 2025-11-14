@@ -11,17 +11,17 @@ namespace Vision4GP.Core.FileSystem
         /// <summary>
         /// Logical file name
         /// </summary>
-        public string SelectName { get; set; }
+        public string SelectName { get; set; } = string.Empty;
 
         /// <summary>
         /// File name
         /// </summary>
-        public string FileName { get; set; }
+        public string FileName { get; set; } = string.Empty;
 
         /// <summary>
         /// File Alphabet (usually ASCII)
         /// </summary>
-        public string Alphabet { get; set; }
+        public string Alphabet { get; set; } = string.Empty;
 
         /// <summary>
         /// Number of keys
@@ -41,18 +41,18 @@ namespace Vision4GP.Core.FileSystem
         /// <summary>
         /// File keys
         /// </summary>
-        public List<VisionKeyDefinition> Keys { get; set; } = new List<VisionKeyDefinition>();
+        public List<VisionKeyDefinition> Keys { get; set; } = new();
 
 
         /// <summary>
         /// Fields
         /// </summary>
-        public List<VisionFieldDefinition> Fields { get; set; } = new List<VisionFieldDefinition>();
+        public List<VisionFieldDefinition> Fields { get; set; } = new();
 
         /// <summary>
         /// Occurses
         /// </summary>
-        public List<VisionOccursDefinition> Occurses { get; set; } = new List<VisionOccursDefinition>();
+        public List<VisionOccursDefinition> Occurses { get; set; } = new();
 
     }
 

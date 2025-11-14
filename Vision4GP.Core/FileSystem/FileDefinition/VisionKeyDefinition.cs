@@ -20,13 +20,13 @@ namespace Vision4GP.Core.FileSystem
         /// <summary>
         /// Fields that compose the key
         /// </summary>
-        public List<VisionFieldDefinition> Fields { get; } = new List<VisionFieldDefinition>();
+        public List<VisionFieldDefinition> Fields { get; } = new();
 
 
         /// <summary>
         /// Segments of the key
         /// </summary>
-        public List<VisionKeySegment> Segments { get; } = new List<VisionKeySegment>();
+        public List<VisionKeySegment> Segments { get; } = new();
 
 
         /// <summary>

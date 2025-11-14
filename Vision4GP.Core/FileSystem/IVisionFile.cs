@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Dynamic;
 
 namespace Vision4GP.Core.FileSystem
 {
@@ -35,7 +33,7 @@ namespace Vision4GP.Core.FileSystem
         /// <param name="record">Record to use for start (null = start from the beginning)</param>
         /// <param name="mode">Vision start mode</param>
         /// <returns>True if the starts is ok, otherwise false</returns>
-        bool Start(int keyIndex = 0, IVisionRecord record = null, FileStartMode mode = FileStartMode.GreaterOrEqual);
+        bool Start(int keyIndex = 0, IVisionRecord? record = null, FileStartMode mode = FileStartMode.GreaterOrEqual);
 
 
         /// <summary>

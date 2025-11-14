@@ -112,6 +112,7 @@ namespace Vision4GP.Core.Microfocus
         /// <returns></returns>
         MicrofocusFileIntResult V6_make(string fileName, string l_params, string keys);
 
+
         /// <summary>
         /// Open a file
         /// </summary>
@@ -121,7 +122,6 @@ namespace Vision4GP.Core.Microfocus
         MicrofocusFilePointerResult V6_open(string fileName, int mode);
 
 
-
         /// <summary>
         /// Read next record from the file
         /// </summary>
@@ -129,7 +129,7 @@ namespace Vision4GP.Core.Microfocus
         /// <param name="record">Record data (array char size must match the maximum file size)</param>
         /// <param name="withLock">True for lock record</param>
         /// <returns>Number of readed chars (zero when the end of the file is reached)</returns>
-        MicrofocusFileIntResult V6_next(IntPtr filePointer, byte[] record, bool withLock = false);
+        MicrofocusFileIntResult V6_next(IntPtr filePointer, Span<byte> record, bool withLock = false);
 
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace Vision4GP.Core.Microfocus
         /// <param name="record">Record data (array char size must match the maximum file size)</param>
         /// <param name="withLock">True for lock record</param>
         /// <returns>Number of readed chars (zero when the begin of the file is reached)</returns>
-        MicrofocusFileIntResult V6_previous(IntPtr filePointer, byte[] record, bool withLock = false);
+        MicrofocusFileIntResult V6_previous(IntPtr filePointer, Span<byte> record, bool withLock = false);
 
 
         /// <summary>
@@ -153,7 +153,7 @@ namespace Vision4GP.Core.Microfocus
         /// <param name="keyIndex">Key index to use (zero based)</param>
         /// <param name="withLock">True for lock record</param>
         /// <returns>Number of readed chars (zero if not found)</returns>
-        MicrofocusFileIntResult V6_read(IntPtr filePointer, byte[] record, int keyIndex, bool withLock = false);
+        MicrofocusFileIntResult V6_read(IntPtr filePointer, Span<byte> record, int keyIndex, bool withLock = false);
 
 
         /// <summary>
@@ -171,7 +171,7 @@ namespace Vision4GP.Core.Microfocus
         /// <param name="keyIndex">Key used for start (zero based)</param>
         /// <param name="keySize">Key size for the start (zero = use all the key)</param>
         /// <param name="mode">What kind of starts will be executed</param>
-        MicrofocusFileIntResult V6_start(IntPtr filePointer, byte[] record, int keyIndex, int keySize, int mode);
+        MicrofocusFileIntResult V6_start(IntPtr filePointer, Span<byte> record, int keyIndex, int keySize, int mode);
 
 
         /// <summary>
@@ -181,7 +181,7 @@ namespace Vision4GP.Core.Microfocus
         /// <param name="record">Record data</param>
         /// <param name="recordSize">Record size</param>
         /// <returns>Number of writed chars. If any error occurs, the number of writed char is zero and f_errno has the error code</returns>
-        MicrofocusFileIntResult V6_write(IntPtr filePointer, byte[] record, int recordSize);
+        MicrofocusFileIntResult V6_write(IntPtr filePointer, Span<byte> record, int recordSize);
 
 
         /// <summary>
@@ -191,7 +191,7 @@ namespace Vision4GP.Core.Microfocus
         /// <param name="record">Record data</param>
         /// <param name="recordSize">Record size</param>
         /// <returns>Number of writed chars. If any error occurs, the number of writed char is zero and f_errno has the error code</returns>
-        MicrofocusFileIntResult V6_rewrite(IntPtr filePointer, byte[] record, int recordSize);
+        MicrofocusFileIntResult V6_rewrite(IntPtr filePointer, Span<byte> record, int recordSize);
 
 
         /// <summary>
@@ -200,7 +200,7 @@ namespace Vision4GP.Core.Microfocus
         /// <param name="filePointer">File pointer</param>
         /// <param name="record">Record data</param>
         /// <returns>Number of deleted chars. If any error occurs, the number of writed char is zero and f_errno has the error code</returns>
-        MicrofocusFileIntResult V6_delete(IntPtr filePointer, byte[] record);
+        MicrofocusFileIntResult V6_delete(IntPtr filePointer, Span<byte> record);
 
 
         /// <summary>
@@ -224,7 +224,7 @@ namespace Vision4GP.Core.Microfocus
         /// <param name="mode">Mode</param>
         /// <param name="result">Result</param>
         /// <returns>Result status</returns>
-        int V6_info(IntPtr filePointer, int mode, byte[] result);
+        int V6_info(IntPtr filePointer, int mode, Span<byte> result);
 
         #endregion
     }

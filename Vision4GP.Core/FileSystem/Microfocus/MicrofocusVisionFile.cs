@@ -145,7 +145,7 @@ namespace Vision4GP.Core.Microfocus
 
             var recordToUse = record ?? new MicrofocusVisionRecord(FileDefinition, DataConverter);
 
-            var microfocusResult = VisionLibrary.V6_start(FilePointer, recordToUse.GetRawContent(), keyIndex, 0, (int)mode);
+            var microfocusResult = VisionLibrary.V6_start(FilePointer, recordToUse.RawContent, keyIndex, 0, (int)mode);
 
             if (microfocusResult.StatusCode.IsOkStatus()) return true;
             if (microfocusResult.StatusCode == MicrofocusFileStatusCodes.NotFound) return false;
@@ -184,7 +184,7 @@ namespace Vision4GP.Core.Microfocus
             if (microfocusResult.StatusCode.IsOkStatus())
             {
                 var result = new MicrofocusVisionRecord(FileDefinition, DataConverter);
-                result.SetRawContent(content);
+                result.RawContent = content;
                 return result;
             }
 
@@ -214,7 +214,7 @@ namespace Vision4GP.Core.Microfocus
             if (microfocusResult.StatusCode.IsOkStatus())
             {
                 var result = new MicrofocusVisionRecord(FileDefinition, DataConverter);
-                result.SetRawContent(content);
+                result.RawContent = content;
                 return result;
             }
 
@@ -244,7 +244,7 @@ namespace Vision4GP.Core.Microfocus
             if (microfocusResult.StatusCode.IsOkStatus())
             {
                 var result = new MicrofocusVisionRecord(FileDefinition, DataConverter);
-                result.SetRawContent(content);
+                result.RawContent = content;
                 return result;
             }
 
@@ -274,7 +274,7 @@ namespace Vision4GP.Core.Microfocus
             if (microfocusResult.StatusCode.IsOkStatus())
             {
                 var result = new MicrofocusVisionRecord(FileDefinition, DataConverter);
-                result.SetRawContent(content);
+                result.RawContent = content;
                 return result;
             }
 
@@ -299,7 +299,7 @@ namespace Vision4GP.Core.Microfocus
             EnsureKeyIndexIsValid(keyIndex);
 
             var content = new byte[FileDefinition.MaxRecordSize];
-            Array.Copy(keyValue.GetRawContent(), content, keyValue.GetRawContent().Length);
+            keyValue.RawContent.CopyTo(content);
 
             var microfocusResult = VisionLibrary.V6_read(FilePointer, content, keyIndex, withLock: true);
 
@@ -307,7 +307,7 @@ namespace Vision4GP.Core.Microfocus
             if (microfocusResult.StatusCode.IsOkStatus())
             {
                 var result = new MicrofocusVisionRecord(FileDefinition, DataConverter);
-                result.SetRawContent(content);
+                result.RawContent = content;
                 return result;
             }
 
@@ -331,7 +331,7 @@ namespace Vision4GP.Core.Microfocus
             EnsureKeyIndexIsValid(keyIndex);
 
             var content = new byte[FileDefinition.MaxRecordSize];
-            Array.Copy(keyValue.GetRawContent(), content, keyValue.GetRawContent().Length);
+            keyValue.RawContent.CopyTo(content);
 
             var microfocusResult = VisionLibrary.V6_read(FilePointer, content, keyIndex, withLock: false);
 
@@ -339,7 +339,7 @@ namespace Vision4GP.Core.Microfocus
             if (microfocusResult.StatusCode.IsOkStatus())
             {
                 var result = new MicrofocusVisionRecord(FileDefinition, DataConverter);
-                result.SetRawContent(content);
+                result.RawContent = content;
                 return result;
             }
 
@@ -370,7 +370,7 @@ namespace Vision4GP.Core.Microfocus
             if (!IsOpen) throw new IOException($"File not opened. File name: {FilePath}");
             if (CurrentOpenMode == FileOpenMode.Input) throw new IOException($"File {FilePath} cannot be writed since it was open in read-only mode");
 
-            var microfocusResult = VisionLibrary.V6_write(FilePointer, record.GetRawContent(), FileDefinition.MaxRecordSize);
+            var microfocusResult = VisionLibrary.V6_write(FilePointer, record.RawContent, FileDefinition.MaxRecordSize);
 
             if (!microfocusResult.StatusCode.IsOkStatus())
             {
@@ -388,7 +388,7 @@ namespace Vision4GP.Core.Microfocus
             if (!IsOpen) throw new IOException($"File not opened. File name: {FilePath}");
             if (CurrentOpenMode == FileOpenMode.Input) throw new IOException($"File {FilePath} cannot be rewrited since it was open in read-only mode");
 
-            var microfocusResult = VisionLibrary.V6_rewrite(FilePointer, record.GetRawContent(), FileDefinition.MaxRecordSize);
+            var microfocusResult = VisionLibrary.V6_rewrite(FilePointer, record.RawContent, FileDefinition.MaxRecordSize);
 
             if (!microfocusResult.StatusCode.IsOkStatus())
             {
@@ -406,7 +406,7 @@ namespace Vision4GP.Core.Microfocus
             if (!IsOpen) throw new IOException($"File not opened. File name: {FilePath}");
             if (CurrentOpenMode == FileOpenMode.Input) throw new IOException($"File {FilePath} cannot be deleted since it was open in read-only mode");
 
-            var microfocusResult = VisionLibrary.V6_delete(FilePointer, record.GetRawContent());
+            var microfocusResult = VisionLibrary.V6_delete(FilePointer, record.RawContent);
 
             if (!microfocusResult.StatusCode.IsOkStatus())
             {

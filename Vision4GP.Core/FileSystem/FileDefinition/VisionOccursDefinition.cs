@@ -25,13 +25,13 @@ namespace Vision4GP.Core.FileSystem
         /// <summary>
         /// Fields of the occurs
         /// </summary>
-        public List<VisionFieldDefinition> Fields { get; } = new List<VisionFieldDefinition>();
+        public List<VisionFieldDefinition> Fields { get; } = new();
 
 
         /// <summary>
         /// Nested occurses
         /// </summary>
-        public List<VisionOccursDefinition> InnerOccurses { get; } = new List<VisionOccursDefinition>();
+        public List<VisionOccursDefinition> InnerOccurses { get; } = new();
 
     }
 

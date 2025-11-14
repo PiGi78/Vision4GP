@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Text;
-using System.Xml.Serialization;
 using Vision4GP.Core.FileSystem;
 
 namespace Vision4GP.Core.Microfocus
@@ -70,17 +68,14 @@ namespace Vision4GP.Core.Microfocus
         /// <param name="fieldName">Name of the field</param>
         /// <param name="record">Record content</param>
         /// <returns>String value of the string</returns>
-        public string GetStringValue(string fieldName, byte[] record)
+        public string GetStringValue(string fieldName, Span<byte> record)
         {
             if (string.IsNullOrEmpty(fieldName)) throw new ArgumentNullException(nameof(fieldName));
-            if (record == null) throw new ArgumentNullException(nameof(record));
+            if (record.IsEmpty) throw new ArgumentNullException(nameof(record));
 
             var field = GetField(fieldName);
 
-            var fiedlValue = new byte[field.Size];
-            Array.Copy(record, field.Offset, fiedlValue, 0, field.Size);
-
-            return VisionEncoding.GetString(fiedlValue).TrimEnd();
+            return VisionEncoding.GetString(record.Slice(field.Offset, field.Size)).TrimEnd();
         }
 
 
@@ -90,10 +85,10 @@ namespace Vision4GP.Core.Microfocus
         /// <param name="fieldName">Name of the field</param>
         /// <param name="record">Record content</param>
         /// <returns>Int value of the string</returns>
-        public int GetIntValue(string fieldName, byte[] record)
+        public int GetIntValue(string fieldName, Span<byte> record)
         {
             if (string.IsNullOrEmpty(fieldName)) throw new ArgumentNullException(nameof(fieldName));
-            if (record == null) throw new ArgumentNullException(nameof(record));
+            if (record.IsEmpty) throw new ArgumentNullException(nameof(record));
             
             var longValue = GetLongValue(fieldName, record);
             return Convert.ToInt32(longValue);
@@ -106,10 +101,10 @@ namespace Vision4GP.Core.Microfocus
         /// <param name="fieldName">Name of the field</param>
         /// <param name="record">Record content</param>
         /// <returns>Long value of the string</returns>
-        public long GetLongValue(string fieldName, byte[] record)
+        public long GetLongValue(string fieldName, Span<byte> record)
         {
             if (string.IsNullOrEmpty(fieldName)) throw new ArgumentNullException(nameof(fieldName));
-            if (record == null) throw new ArgumentNullException(nameof(record));
+            if (record.IsEmpty) throw new ArgumentNullException(nameof(record));
             
             var strValue = GetStringValue(fieldName, record);
             if (string.IsNullOrEmpty(strValue)) return 0;
@@ -134,10 +129,10 @@ namespace Vision4GP.Core.Microfocus
         /// <param name="fieldName">Name of the field</param>
         /// <param name="record">Record content</param>
         /// <returns>Decimal value of the string</returns>
-        public decimal GetDecimalValue(string fieldName, byte[] record)
+        public decimal GetDecimalValue(string fieldName, Span<byte> record)
         {
             if (string.IsNullOrEmpty(fieldName)) throw new ArgumentNullException(nameof(fieldName));
-            if (record == null) throw new ArgumentNullException(nameof(record));
+            if (record.IsEmpty) throw new ArgumentNullException(nameof(record));
             
             var strValue = GetStringValue(fieldName, record);
             if (string.IsNullOrEmpty(strValue)) return 0;
@@ -168,10 +163,10 @@ namespace Vision4GP.Core.Microfocus
         /// <param name="fieldName">Name of the field</param>
         /// <param name="record">Record content</param>
         /// <returns>Date value of the string</returns>
-        public DateTime? GetDateValue(string fieldName, byte[] record)
+        public DateTime? GetDateValue(string fieldName, Span<byte> record)
         {
             if (string.IsNullOrEmpty(fieldName)) throw new ArgumentNullException(nameof(fieldName));
-            if (record == null) throw new ArgumentNullException(nameof(record));
+            if (record.IsEmpty) throw new ArgumentNullException(nameof(record));
             
             var strValue = GetStringValue(fieldName, record);
 
@@ -206,10 +201,10 @@ namespace Vision4GP.Core.Microfocus
         /// <param name="fieldName">Name of the field</param>
         /// <param name="record">Record where to put data</param>
         /// <param name="value">Value to store</param>
-        public void SetValue(string fieldName, byte[] record, string value)
+        public void SetValue(string fieldName, Span<byte> record, string value)
         {
             if (string.IsNullOrEmpty(fieldName)) throw new ArgumentNullException(nameof(fieldName));
-            if (record == null) throw new ArgumentNullException(nameof(record));
+            if (record.IsEmpty) throw new ArgumentNullException(nameof(record));
             
             var strToSave = string.IsNullOrEmpty(value) ? string.Empty : value;
 
@@ -236,8 +231,7 @@ namespace Vision4GP.Core.Microfocus
             }
 
             // Saves the data
-            var content = VisionEncoding.GetBytes(strToSave);
-            Array.Copy(content, 0, record, field.Offset, field.Bytes);
+            VisionEncoding.GetBytes(strToSave).CopyTo(record.Slice(field.Offset, field.Bytes));
         }
 
 
@@ -249,10 +243,10 @@ namespace Vision4GP.Core.Microfocus
         /// <param name="fieldName">Name of the field</param>
         /// <param name="record">Record where to put data</param>
         /// <param name="value">Value to store</param>
-        public void SetValue(string fieldName, byte[] record, object value)
+        public void SetValue(string fieldName, Span<byte> record, object value)
         {
             if (string.IsNullOrEmpty(fieldName)) throw new ArgumentNullException(nameof(fieldName));
-            if (record == null) throw new ArgumentNullException(nameof(record));
+            if (record.IsEmpty) throw new ArgumentNullException(nameof(record));
             
             var field = GetField(fieldName);
 
@@ -309,10 +303,10 @@ namespace Vision4GP.Core.Microfocus
         /// <param name="fieldName">Name of the field</param>
         /// <param name="record">Record where to take data</param>
         /// <returns>Property value</returns>
-        public object GetValue(string fieldName, byte[] record)
+        public object GetValue(string fieldName, Span<byte> record)
         {
             if (string.IsNullOrEmpty(fieldName)) throw new ArgumentNullException(nameof(fieldName));
-            if (record == null) throw new ArgumentNullException(nameof(record));
+            if (record.IsEmpty) throw new ArgumentNullException(nameof(record));
             
             var field = GetField(fieldName);
 
@@ -337,10 +331,10 @@ namespace Vision4GP.Core.Microfocus
         /// <param name="fieldName">Name of the field</param>
         /// <param name="record">Record where to put data</param>
         /// <param name="value">Value to store</param>
-        public void SetValue(string fieldName, byte[] record, int value)
+        public void SetValue(string fieldName, Span<byte> record, int value)
         {
             if (string.IsNullOrEmpty(fieldName)) throw new ArgumentNullException(nameof(fieldName));
-            if (record == null) throw new ArgumentNullException(nameof(record));
+            if (record.IsEmpty) throw new ArgumentNullException(nameof(record));
             
 
             var field = GetField(fieldName);
@@ -378,10 +372,10 @@ namespace Vision4GP.Core.Microfocus
         /// <param name="fieldName">Name of the field</param>
         /// <param name="record">Record where to put data</param>
         /// <param name="value">Value to store</param>
-        public void SetValue(string fieldName, byte[] record, long value)
+        public void SetValue(string fieldName, Span<byte> record, long value)
         {
             if (string.IsNullOrEmpty(fieldName)) throw new ArgumentNullException(nameof(fieldName));
-            if (record == null) throw new ArgumentNullException(nameof(record));
+            if (record.IsEmpty) throw new ArgumentNullException(nameof(record));
             
 
             var field = GetField(fieldName);
@@ -420,10 +414,10 @@ namespace Vision4GP.Core.Microfocus
         /// <param name="fieldName">Name of the field</param>
         /// <param name="record">Record where to put data</param>
         /// <param name="value">Value to store</param>
-        public void SetValue(string fieldName, byte[] record, decimal value)
+        public void SetValue(string fieldName, Span<byte> record, decimal value)
         {
             if (string.IsNullOrEmpty(fieldName)) throw new ArgumentNullException(nameof(fieldName));
-            if (record == null) throw new ArgumentNullException(nameof(record));
+            if (record.IsEmpty) throw new ArgumentNullException(nameof(record));
             
 
             var field = GetField(fieldName);
@@ -463,10 +457,10 @@ namespace Vision4GP.Core.Microfocus
         /// <param name="fieldName">Name of the field</param>
         /// <param name="record">Record where to put data</param>
         /// <param name="value">Value to store</param>
-        public void SetValue(string fieldName, byte[] record, DateTime? value)
+        public void SetValue(string fieldName, Span<byte> record, DateTime? value)
         {
             if (string.IsNullOrEmpty(fieldName)) throw new ArgumentNullException(nameof(fieldName));
-            if (record == null) throw new ArgumentNullException(nameof(record));
+            if (record.IsEmpty) throw new ArgumentNullException(nameof(record));
             
 
             var field = GetField(fieldName);
@@ -490,7 +484,7 @@ namespace Vision4GP.Core.Microfocus
 
 
        
-        private byte[] _emptyRecord = null;
+        private byte[]? _emptyRecord = null;
 
         /// <summary>
         /// Gets an empty record content

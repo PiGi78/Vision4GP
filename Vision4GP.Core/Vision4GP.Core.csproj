@@ -1,21 +1,22 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>9.0.1</Version>
+    <Version>10.0.1</Version>
     <Authors>Gianni Piolanti</Authors>
     <Title>Library for work with Vision File System</Title>
     <Description>This library allows you to access Vision File System, for now the Microfocus Extend AcuCobol one</Description>
     <PackageProjectUrl>https://github.com/PiGi78/Vision4GP</PackageProjectUrl>
     <PackageIcon>4gp.png</PackageIcon>
     <PackageTags>Vision Cobol</PackageTags>
-    <Copyright>Copyright ©2022 4GP</Copyright>
+    <Copyright>Copyright ©2025 4GP</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <NeutralLanguage>en</NeutralLanguage>
     <RepositoryUrl>https://github.com/PiGi78/Vision4GP</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

@@ -10,7 +10,7 @@
         /// <summary>
         /// Name of the field
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
 
         /// <summary>

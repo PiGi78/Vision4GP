@@ -12,113 +12,24 @@ namespace Vision4GP.Core.FileSystem
         /// <summary>
         /// Raw content of the record
         /// </summary>
-        byte[] GetRawContent();
+        Span<byte> RawContent { get; set; }
 
 
         /// <summary>
-        /// Set the new content of the record
+        /// Gets the value of a property by its name
         /// </summary>
-        /// <param name="newContent">New content</param>
-        void SetRawContent(byte[] newContent);
-        
-        
-        /// <summary>
-        /// Gets the value of a property of type string
-        /// </summary>
+        /// <typeparam name="T">Type of the value</typeparam>
         /// <param name="propertyName">Name of the property</param>
-        /// <returns>Value of the property</returns>
-        string GetStringValue(string propertyName);
+        /// <returns>Property value</returns>
+        T? GetPropertyValue<T>(string propertyName);
 
 
         /// <summary>
-        /// Set the value of a string property
+        /// Sets the value of a property by its name
         /// </summary>
+        /// <typeparam name="T">Type of the value</typeparam>
         /// <param name="propertyName">Name of the property</param>
         /// <param name="value">Property value</param>
-        void SetStringValue(string propertyName, string value);
-
-
-        
-        /// <summary>
-        /// Gets the value of a property of type int
-        /// </summary>
-        /// <param name="propertyName">Name of the property</param>
-        /// <returns>Value of the property</returns>
-        int GetIntValue(string propertyName);
-
-
-        /// <summary>
-        /// Set the value of an int property
-        /// </summary>
-        /// <param name="propertyName">Name of the property</param>
-        /// <param name="value">Property value</param>
-        void SetIntValue(string propertyName, int value);
-
-
-        /// <summary>
-        /// Gets the value of a property of type long
-        /// </summary>
-        /// <param name="propertyName">Name of the property</param>
-        /// <returns>Value of the property</returns>
-        long GetLongValue(string propertyName);
-
-
-        /// <summary>
-        /// Set the value of a long property
-        /// </summary>
-        /// <param name="propertyName">Name of the property</param>
-        /// <param name="value">Property value</param>
-        void SetLongValue(string propertyName, long value);
-
-
-        
-        /// <summary>
-        /// Gets the value of a property of type decimal
-        /// </summary>
-        /// <param name="propertyName">Name of the property</param>
-        /// <returns>Value of the property</returns>
-        decimal GetDecimalValue(string propertyName);
-
-
-        /// <summary>
-        /// Set the value of a decimal property
-        /// </summary>
-        /// <param name="propertyName">Name of the property</param>
-        /// <param name="value">Property value</param>
-        void SetDecimalValue(string propertyName, decimal value);
-
-
-        
-        /// <summary>
-        /// Gets the value of a property of type date
-        /// </summary>
-        /// <param name="propertyName">Name of the property</param>
-        /// <returns>Value of the property</returns>
-        DateTime? GetDateValue(string propertyName);
-
-
-        /// <summary>
-        /// Set the value of a date property
-        /// </summary>
-        /// <param name="propertyName">Name of the property</param>
-        /// <param name="value">Property value</param>
-        void SetDateValue(string propertyName, DateTime? value);
-
-
-        /// <summary>
-        /// Set the value of a property
-        /// </summary>
-        /// <param name="propertyName">Name of the property</param>
-        /// <param name="value">Property value</param>
-        void SetValue(string propertyName, object value);
-
-
-        /// <summary>
-        /// Get the value of a property
-        /// </summary>
-        /// <param name="propertyName">Name of the property</param>
-        /// <returns>Value of the property</returns>
-        object GetValue(string propertyName);
-
+        void SetPropertyValue<T>(string propertyName, T? value);
     }
 }
