@@ -11,7 +11,7 @@ namespace Vision4GP.Core.Microfocus
     /// <summary>
     /// Data converter for Microfocus
     /// </summary>
-    internal class MicrofocusDataConverter
+    internal class MicrofocusDataConverter : IDataConverter
     {
 
         /// <summary>
@@ -36,6 +36,12 @@ namespace Vision4GP.Core.Microfocus
         private Encoding VisionEncoding { get; } = Encoding.ASCII;
 
 
+
+        #region Extract field
+
+
+        private Dictionary<string, VisionFieldDefinition> _fieldsCache = new Dictionary<string, VisionFieldDefinition>();
+
         /// <summary>
         /// Extract the field of the file with the given name
         /// </summary>
@@ -59,7 +65,13 @@ namespace Vision4GP.Core.Microfocus
         }
 
 
-        private Dictionary<string, VisionFieldDefinition> _fieldsCache = new Dictionary<string, VisionFieldDefinition>();
+
+
+        #endregion
+
+
+
+        #region Extract/Set specific values
 
 
         /// <summary>
@@ -68,7 +80,7 @@ namespace Vision4GP.Core.Microfocus
         /// <param name="fieldName">Name of the field</param>
         /// <param name="record">Record content</param>
         /// <returns>String value of the string</returns>
-        public string GetStringValue(string fieldName, Span<byte> record)
+        private string GetStringValue(string fieldName, Span<byte> record)
         {
             if (string.IsNullOrEmpty(fieldName)) throw new ArgumentNullException(nameof(fieldName));
             if (record.IsEmpty) throw new ArgumentNullException(nameof(record));
@@ -85,13 +97,33 @@ namespace Vision4GP.Core.Microfocus
         /// <param name="fieldName">Name of the field</param>
         /// <param name="record">Record content</param>
         /// <returns>Int value of the string</returns>
-        public int GetIntValue(string fieldName, Span<byte> record)
+        private int GetIntValue(string fieldName, Span<byte> record)
         {
             if (string.IsNullOrEmpty(fieldName)) throw new ArgumentNullException(nameof(fieldName));
             if (record.IsEmpty) throw new ArgumentNullException(nameof(record));
-            
-            var longValue = GetLongValue(fieldName, record);
-            return Convert.ToInt32(longValue);
+
+            var field = GetField(fieldName);
+            int result = 0;
+            short multiplier = 1;
+            var zeroByte = (byte)'0';
+            var nineByte = (byte)'9';
+            var minusByte = (byte)'-';
+
+
+            foreach (var byteValue in record.Slice(field.Offset, field.Bytes))
+            {
+                if (byteValue < zeroByte || byteValue > nineByte)
+                {
+                    continue;
+                }
+                if (byteValue == minusByte)
+                {
+                    multiplier = -1;
+                    continue;
+                }
+                result = result * 10 + (byteValue - zeroByte);
+            }
+            return result * multiplier;
         }
 
 
@@ -101,25 +133,34 @@ namespace Vision4GP.Core.Microfocus
         /// <param name="fieldName">Name of the field</param>
         /// <param name="record">Record content</param>
         /// <returns>Long value of the string</returns>
-        public long GetLongValue(string fieldName, Span<byte> record)
+        private long GetLongValue(string fieldName, Span<byte> record)
         {
             if (string.IsNullOrEmpty(fieldName)) throw new ArgumentNullException(nameof(fieldName));
             if (record.IsEmpty) throw new ArgumentNullException(nameof(record));
-            
-            var strValue = GetStringValue(fieldName, record);
-            if (string.IsNullOrEmpty(strValue)) return 0;
 
             var field = GetField(fieldName);
-
+            long result = 0;
             var multiplier = 1;
-            if (field.IsSigned)
-            {
-                if (strValue.Contains('-')) multiplier = -1;
-                strValue = strValue.Replace("+", "").Replace("-", "");
-            }
+            var divider = field.Scale == 0 ? 1 : field.Scale;
+            var zeroByte = (byte)'0';
+            var nineByte = (byte)'9';
+            var minusByte = (byte)'-';
 
-            long.TryParse(strValue, out long result);
-            return result * multiplier;
+
+            foreach (var byteValue in record.Slice(field.Offset, field.Bytes))
+            {
+                if (byteValue < zeroByte || byteValue > nineByte)
+                {
+                    continue;
+                }
+                if (byteValue == minusByte)
+                {
+                    multiplier = -1;
+                    continue;
+                }
+                result = result * 10 + (byteValue - zeroByte);
+            }
+            return result * multiplier / divider;
         }
 
 
@@ -129,30 +170,34 @@ namespace Vision4GP.Core.Microfocus
         /// <param name="fieldName">Name of the field</param>
         /// <param name="record">Record content</param>
         /// <returns>Decimal value of the string</returns>
-        public decimal GetDecimalValue(string fieldName, Span<byte> record)
+        private decimal GetDecimalValue(string fieldName, Span<byte> record)
         {
             if (string.IsNullOrEmpty(fieldName)) throw new ArgumentNullException(nameof(fieldName));
             if (record.IsEmpty) throw new ArgumentNullException(nameof(record));
-            
-            var strValue = GetStringValue(fieldName, record);
-            if (string.IsNullOrEmpty(strValue)) return 0;
 
             var field = GetField(fieldName);
 
+            long result = 0;
             var multiplier = 1;
-            if (field.IsSigned)
-            {
-                if (strValue.Contains('-')) multiplier = -1;
-                strValue = strValue.Replace("+", "").Replace("-", "");
-            }
+            var divider = field.Scale == 0 ? 1 : field.Scale;
+            var zeroByte = (byte)'0';
+            var nineByte = (byte)'9';
+            var minusByte = (byte)'-';
 
-            var divider = Convert.ToDecimal(Math.Pow(10, field.Scale));
-            if (field.Scale > 0)
-            {
-                strValue.Replace(".", "").Replace(",", "");
-            }
 
-            decimal.TryParse(strValue, out decimal result);
+            foreach (var byteValue in record.Slice(field.Offset, field.Bytes))
+            {
+                if (byteValue < zeroByte || byteValue > nineByte)
+                {
+                    continue;
+                }
+                if (byteValue == minusByte)
+                {
+                    multiplier = -1;
+                    continue;
+                }
+                result = result * 10 + (byteValue - zeroByte);
+            }
             return result * multiplier / divider;
         }
 
@@ -163,11 +208,11 @@ namespace Vision4GP.Core.Microfocus
         /// <param name="fieldName">Name of the field</param>
         /// <param name="record">Record content</param>
         /// <returns>Date value of the string</returns>
-        public DateTime? GetDateValue(string fieldName, Span<byte> record)
+        private DateTime? GetDateValue(string fieldName, Span<byte> record)
         {
             if (string.IsNullOrEmpty(fieldName)) throw new ArgumentNullException(nameof(fieldName));
             if (record.IsEmpty) throw new ArgumentNullException(nameof(record));
-            
+
             var strValue = GetStringValue(fieldName, record);
 
             if (string.IsNullOrEmpty(strValue) ||
@@ -201,18 +246,18 @@ namespace Vision4GP.Core.Microfocus
         /// <param name="fieldName">Name of the field</param>
         /// <param name="record">Record where to put data</param>
         /// <param name="value">Value to store</param>
-        public void SetValue(string fieldName, Span<byte> record, string value)
+        private void SetStringValue(string fieldName, Span<byte> record, string value)
         {
             if (string.IsNullOrEmpty(fieldName)) throw new ArgumentNullException(nameof(fieldName));
             if (record.IsEmpty) throw new ArgumentNullException(nameof(record));
-            
+
             var strToSave = string.IsNullOrEmpty(value) ? string.Empty : value;
 
             var field = GetField(fieldName);
 
             // Check for max lenght
             var strLen = strToSave.Length;
-            if (strLen > field.Bytes) 
+            if (strLen > field.Bytes)
             {
                 throw new ArgumentOutOfRangeException(nameof(value), value, $"Field {field.Name} cannot be longer than {field.Bytes} bytes");
             }
@@ -236,106 +281,17 @@ namespace Vision4GP.Core.Microfocus
 
 
 
-
         /// <summary>
         /// Sets the value of a field
         /// </summary>
         /// <param name="fieldName">Name of the field</param>
         /// <param name="record">Record where to put data</param>
         /// <param name="value">Value to store</param>
-        public void SetValue(string fieldName, Span<byte> record, object value)
+        private void SetIntValue(string fieldName, Span<byte> record, int value)
         {
             if (string.IsNullOrEmpty(fieldName)) throw new ArgumentNullException(nameof(fieldName));
             if (record.IsEmpty) throw new ArgumentNullException(nameof(record));
-            
-            var field = GetField(fieldName);
 
-            // Null value
-            if (value == null)
-            {
-                if (field.FieldType == VisionFieldType.Number)
-                {
-                    SetValue(fieldName, record, 0);
-                }
-                else
-                {
-                    SetValue(fieldName, record, "");
-                }
-                return;
-            }
-
-            // Other values
-            switch (field.FieldType)
-            {
-                case VisionFieldType.Date:
-                    var date = Convert.ToDateTime(value);
-                    SetValue(fieldName, record, value);
-                    break;
-                case VisionFieldType.Number:
-                    if (field.Scale > 0)
-                    {
-                        var decimalValue = Convert.ToDecimal(value);
-                        SetValue(fieldName, record, decimalValue);
-                    }
-                    else
-                    {
-                        var longValue = Convert.ToInt64(value);
-                        SetValue(fieldName, record, longValue);
-                    }
-                    break;
-                default:
-                    var strValue = value as string;
-                    if (string.IsNullOrEmpty(strValue))
-                    {
-                        strValue = value.ToString();
-                    }
-                    SetValue(fieldName, record, strValue);
-                    break;
-            }
-
-        }
-
-
-
-        /// <summary>
-        /// Get the value of a field
-        /// </summary>
-        /// <param name="fieldName">Name of the field</param>
-        /// <param name="record">Record where to take data</param>
-        /// <returns>Property value</returns>
-        public object GetValue(string fieldName, Span<byte> record)
-        {
-            if (string.IsNullOrEmpty(fieldName)) throw new ArgumentNullException(nameof(fieldName));
-            if (record.IsEmpty) throw new ArgumentNullException(nameof(record));
-            
-            var field = GetField(fieldName);
-
-            switch (field.FieldType)
-            {
-                case VisionFieldType.Date:
-                    return GetDateValue(fieldName, record);
-                case VisionFieldType.Number:
-                    if (field.Scale > 0) return GetDecimalValue(fieldName, record);
-                    return GetLongValue(fieldName, record);
-                default:
-                    return GetStringValue(fieldName, record);
-            }
-
-        }
-
-
-
-        /// <summary>
-        /// Sets the value of a field
-        /// </summary>
-        /// <param name="fieldName">Name of the field</param>
-        /// <param name="record">Record where to put data</param>
-        /// <param name="value">Value to store</param>
-        public void SetValue(string fieldName, Span<byte> record, int value)
-        {
-            if (string.IsNullOrEmpty(fieldName)) throw new ArgumentNullException(nameof(fieldName));
-            if (record.IsEmpty) throw new ArgumentNullException(nameof(record));
-            
 
             var field = GetField(fieldName);
 
@@ -372,11 +328,11 @@ namespace Vision4GP.Core.Microfocus
         /// <param name="fieldName">Name of the field</param>
         /// <param name="record">Record where to put data</param>
         /// <param name="value">Value to store</param>
-        public void SetValue(string fieldName, Span<byte> record, long value)
+        private void SetLongValue(string fieldName, Span<byte> record, long value)
         {
             if (string.IsNullOrEmpty(fieldName)) throw new ArgumentNullException(nameof(fieldName));
             if (record.IsEmpty) throw new ArgumentNullException(nameof(record));
-            
+
 
             var field = GetField(fieldName);
 
@@ -414,11 +370,11 @@ namespace Vision4GP.Core.Microfocus
         /// <param name="fieldName">Name of the field</param>
         /// <param name="record">Record where to put data</param>
         /// <param name="value">Value to store</param>
-        public void SetValue(string fieldName, Span<byte> record, decimal value)
+        private void SetDecimalValue(string fieldName, Span<byte> record, decimal value)
         {
             if (string.IsNullOrEmpty(fieldName)) throw new ArgumentNullException(nameof(fieldName));
             if (record.IsEmpty) throw new ArgumentNullException(nameof(record));
-            
+
 
             var field = GetField(fieldName);
 
@@ -445,7 +401,7 @@ namespace Vision4GP.Core.Microfocus
                 valueToSave *= (decimal)Math.Pow(10, field.Scale);
                 strToSave = valueToSave.ToString(new string('0', size));
             }
-            
+
             SetValue(fieldName, record, strToSave);
         }
 
@@ -457,11 +413,11 @@ namespace Vision4GP.Core.Microfocus
         /// <param name="fieldName">Name of the field</param>
         /// <param name="record">Record where to put data</param>
         /// <param name="value">Value to store</param>
-        public void SetValue(string fieldName, Span<byte> record, DateTime? value)
+        private void SetDateValue(string fieldName, Span<byte> record, DateTime? value)
         {
             if (string.IsNullOrEmpty(fieldName)) throw new ArgumentNullException(nameof(fieldName));
             if (record.IsEmpty) throw new ArgumentNullException(nameof(record));
-            
+
 
             var field = GetField(fieldName);
 
@@ -483,7 +439,12 @@ namespace Vision4GP.Core.Microfocus
 
 
 
-       
+
+
+        #endregion
+
+
+
         private byte[]? _emptyRecord = null;
 
         /// <summary>
@@ -529,11 +490,105 @@ namespace Vision4GP.Core.Microfocus
                         {
                             _emptyRecord[position] = spaceByte;
                         }
-                        position ++;
+                        position++;
                     }
                 }
             }
             return _emptyRecord;
+        }
+
+
+
+        /// <summary>
+        /// Gets a field value from the record
+        /// </summary>
+        /// <param name="fieldName">Name of the field</param>
+        /// <param name="record">Record from where extract data</param>
+        /// <returns>Requested data</returns>
+        public T? GetValue<T>(string fieldName, Span<byte> record)
+        {
+            if (typeof(T) == typeof(int?) ||
+                typeof(T) == typeof(int))
+            {
+                return GetIntValue(fieldName, record) is T value ? value : default;
+            }
+
+            if (typeof(T) == typeof(long?) ||
+                typeof(T) == typeof(long))
+            {
+                return GetLongValue(fieldName, record) is T value ? value : default;
+            }
+
+            if (typeof(T) == typeof(Decimal?) ||
+                typeof(T) == typeof(decimal))
+            {
+                return GetDecimalValue(fieldName, record) is T value ? value : default;
+            }
+
+            if (typeof(T) == typeof(string))
+            {
+                return GetStringValue(fieldName, record) is T value ? value : default;
+            }
+
+            if (typeof(T) == typeof(DateTime?) ||
+                typeof(T) == typeof(DateTime) ||
+                typeof(T) == typeof(DateOnly?) ||
+                typeof(T) == typeof(DateOnly))
+            {
+                return GetDateValue(fieldName, record) is T value ? value : default;
+            }
+
+            throw new NotSupportedException($"The type '{typeof(T).FullName}' is not supported. Field name: {fieldName}");
+        }
+
+
+
+
+        /// <summary>
+        /// Sets the value of the specified property to the provided value.
+        /// </summary>
+        /// <typeparam name="T">The type of the property value to set.</typeparam>
+        /// <param name="fieldName">The name of the property whose value will be set. Cannot be null or empty.</param>
+        /// <param name="value">The value to assign to the property. May be null for reference types or nullable value types.</param>
+        public void SetValue<T>(string fieldName, Span<byte> record, T? value)
+        {
+            if (typeof(T) == typeof(int?) ||
+                typeof(T) == typeof(int))
+            {
+                var intValue = value is int intVal ? intVal : (int?)null;
+                SetIntValue(fieldName, record, intValue.GetValueOrDefault());
+            }
+
+            if (typeof(T) == typeof(long?) ||
+                typeof(T) == typeof(long))
+            {
+                var longValue = value is long longVal ? longVal : (long?)null;
+                SetLongValue(fieldName, record, longValue.GetValueOrDefault());
+            }
+
+            if (typeof(T) == typeof(Decimal?) ||
+                typeof(T) == typeof(decimal))
+            {
+                var decimalValue = value is decimal decVal ? decVal : (decimal?)null;
+                SetDecimalValue(fieldName, record, decimalValue.GetValueOrDefault());
+            }
+
+            if (typeof(T) == typeof(string))
+            {
+                var stringValue = value as string;
+                SetStringValue(fieldName, record, stringValue ?? string.Empty);
+            }
+
+            if (typeof(T) == typeof(DateTime?) ||
+                typeof(T) == typeof(DateTime) ||
+                typeof(T) == typeof(DateOnly?) ||
+                typeof(T) == typeof(DateOnly))
+            {
+                var dateValue = value is DateTime dtVal ? dtVal : (DateTime?)null;
+                SetDateValue(fieldName, record, dateValue.GetValueOrDefault());
+            }
+
+            throw new NotSupportedException($"The type '{typeof(T).FullName}' is not supported. Field name: {fieldName}");
         }
     }
 

@@ -11,7 +11,7 @@ namespace Vision4GP.Core.Microfocus
     /// <summary>
     /// Microfocus file definition factory
     /// </summary>
-    internal class MicrofocusFileDefinitionLoader
+    internal class MicrofocusFileDefinitionLoader : IFileDefinitionLoader
     {
 
         // Microfocus namespace
@@ -23,14 +23,10 @@ namespace Vision4GP.Core.Microfocus
         /// </summary>
         /// <param name="xfdFilePath">XFD file path</param>
         /// <returns>Requested file definition</returns>
-        public VisionFileDefinition LoadFromXfd(string xfdFilePath)
+        public VisionFileDefinition LoadFromFile(string xfdFilePath)
         {
             if (string.IsNullOrEmpty(xfdFilePath)) throw new ArgumentNullException(nameof(xfdFilePath));
-
-            if (!File.Exists(xfdFilePath))
-            {
-                throw new ArgumentException(string.Format("XFD file {0} not found", xfdFilePath), nameof(xfdFilePath));
-            }
+            if (!File.Exists(xfdFilePath)) throw new FileNotFoundException("XFD file not found", xfdFilePath);
 
             // Load file
             var xfd = XElement.Load(xfdFilePath);
@@ -45,12 +41,12 @@ namespace Vision4GP.Core.Microfocus
                 throw new IOException(string.Format("Invalid xfd file: {0}", xfdFilePath));
             }
 
-            result.SelectName = (string) identification.Element(XfdNs + "select-name");
-            result.FileName = ((string) identification.Element(XfdNs + "table-name")).ToLowerInvariant();
-            result.Alphabet = (string) identification.Element(XfdNs + "alphabet");
-            result.MinRecordSize = (int) identification.Element(XfdNs + "minimum-record-size");
-            result.MaxRecordSize = (int) identification.Element(XfdNs + "maximum-record-size");
-            result.NumberOfKeys = (int) identification.Element(XfdNs + "number-of-keys");
+            result.SelectName = (string)identification.Element(XfdNs + "select-name");
+            result.FileName = ((string)identification.Element(XfdNs + "table-name")).ToLowerInvariant();
+            result.Alphabet = (string)identification.Element(XfdNs + "alphabet");
+            result.MinRecordSize = (int)identification.Element(XfdNs + "minimum-record-size");
+            result.MaxRecordSize = (int)identification.Element(XfdNs + "maximum-record-size");
+            result.NumberOfKeys = (int)identification.Element(XfdNs + "number-of-keys");
 
             // Fields
             var fields = xfd.Element(XfdNs + "fields");
@@ -71,25 +67,25 @@ namespace Vision4GP.Core.Microfocus
             {
                 var vKey = new VisionKeyDefinition
                 {
-                    IsUnique = !(bool) key.Attribute(XfdNs + "duplicates-allowed")
+                    IsUnique = !(bool)key.Attribute(XfdNs + "duplicates-allowed")
                 };
                 // Key columns
                 foreach (XElement keyColumn in key.Element(XfdNs + "key-columns")?.Elements(XfdNs + "key-column"))
                 {
-                    string fieldName = (string) keyColumn.Attribute(XfdNs + "key-column-name");
+                    string fieldName = (string)keyColumn.Attribute(XfdNs + "key-column-name");
                     vKey.Fields.Add(result.Fields.Single(x => x.Name == fieldName));
                 }
                 // Key segments
                 foreach (var segment in key.Elements(XfdNs + "segments").Elements(XfdNs + "segment"))
                 {
-                    var strSize = (string) segment.Attribute(XfdNs + "segment-size");
-                    var strOffset = (string) segment.Attribute(XfdNs + "segment-offset");
+                    var strSize = (string)segment.Attribute(XfdNs + "segment-size");
+                    var strOffset = (string)segment.Attribute(XfdNs + "segment-offset");
                     if (int.TryParse(strSize, out int size) &&
                         int.TryParse(strOffset, out int offset))
                     {
                         vKey.Segments.Add(new VisionKeySegment
                         {
-                            Offset =  offset,
+                            Offset = offset,
                             Size = size
                         });
                     }

@@ -186,7 +186,7 @@ namespace Vision4GP.Core.Microfocus
                 {
                     try
                     {
-                        var definition = loader.LoadFromXfd(file);
+                        var definition = loader.LoadFromFile(file);
                         FileDefinitions.Add(definition.FileName.ToUpperInvariant(), definition);
                     }
                     catch { }
