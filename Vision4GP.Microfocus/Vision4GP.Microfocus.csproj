@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>Vision File Library that works with Microfocus file system</Title>
+    <Authors>Gianni Piolanti</Authors>
+    <Description>Library to work with Microfocus (OpenText / AcuCobol) vision files</Description>
+    <Copyright>Copyright ©2025 4GP</Copyright>
+    <PackageProjectUrl>https://github.com/PiGi78/Vision4GP</PackageProjectUrl>
+    <PackageIcon>4gp.png</PackageIcon>
+    <RepositoryUrl>https://github.com/PiGi78/Vision4GP</RepositoryUrl>
+    <PackageTags>Vision;Cobol;Microfocus;OpenText;Acu</PackageTags>
+    <RepositoryType>git</RepositoryType>
+    <NeutralLanguage>en</NeutralLanguage>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Version>10.0.1</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\4gp.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Vision4GP.Core\Vision4GP.Core.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -14,25 +14,26 @@ namespace Vision4GP.Core.FileSystem
         /// <summary>
         /// Gets an empty record content
         /// </summary>
+        /// <param name="fileDefinition">File definition</param>
         /// <returns>Content of the empty record</returns>
-        byte[] GetEmptyRecordContent();
+        byte[] GetEmptyRecordContent(VisionFileDefinition fileDefinition);
 
 
         /// <summary>
         /// Gets a field value from the record
         /// </summary>
-        /// <param name="fieldName">Name of the field</param>
+        /// <param name="field">The field you're asking the value</param>
         /// <param name="record">Record from where extract data</param>
         /// <returns>Requested data</returns>
-        T? GetValue<T>(string fieldName, Span<byte> record);
+        T? GetValue<T>(VisionFieldDefinition field, Span<byte> record);
 
 
         /// <summary>
         /// Sets a field value in the record
         /// </summary>
-        /// <param name="fieldName">Name of the field</param>
+        /// <param name="field">The field you want to set the value</param>
         /// <param name="record">Record where put data</param>
         /// <param name="value">Value to set</param>
-        void SetValue<T>(string fieldName, Span<byte> record, T? value);
+        void SetValue<T>(VisionFieldDefinition field, Span<byte> record, T? value);
     }
 }

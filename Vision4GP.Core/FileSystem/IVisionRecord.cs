@@ -12,7 +12,7 @@ namespace Vision4GP.Core.FileSystem
         /// <summary>
         /// Raw content of the record
         /// </summary>
-        Span<byte> RawContent { get; set; }
+        byte[] RawContent { get; set; }
 
 
         /// <summary>

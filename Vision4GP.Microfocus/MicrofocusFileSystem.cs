@@ -1,54 +1,39 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
+using Microsoft.Extensions.Options;
 using Vision4GP.Core.FileSystem;
 
-namespace Vision4GP.Core.Microfocus
+namespace Vision4GP.Microfocus
 {
 
 
     /// <summary>
     /// Vision file system
     /// </summary>
-    internal class MicrofocusFileSystem : IVisionFileSystem
+    public class MicrofocusFileSystem : IVisionFileSystem
     {
 
-        /// <summary>
-        /// Cannot be initialized. Use GetInstance method instead
-        /// </summary>
-        private MicrofocusFileSystem() {}
-
-
 
         /// <summary>
-        /// Gets the instance of the Vision file system currently used
+        /// Creates a new instance of Microfocus File System
         /// </summary>
-        /// <returns>Instance of the Vision file system</returns>
-        internal static MicrofocusFileSystem GetInstance()
+        /// <param name="dataConverter">Data converter</param>
+        public MicrofocusFileSystem(IOptions<MicrofocusSettings> settings, IDataConverter dataConverter)
         {
-            return CurrentInstance.Value;
+            ArgumentNullException.ThrowIfNull(dataConverter);
+            ArgumentNullException.ThrowIfNull(settings);
+            DataConverter = dataConverter;
+            Settings = settings.Value;
         }
 
-
-        private static Lazy<MicrofocusFileSystem> CurrentInstance = new Lazy<MicrofocusFileSystem>(() =>
-        {
-            var result = new MicrofocusFileSystem();
-            result.Initialize();
-            result.LoadFileDefinitions();
-            return result;
-        });
+        /// <summary>
+        /// Settings for Microfocus
+        /// </summary>
+        private MicrofocusSettings Settings { get; }
 
 
         /// <summary>
-        /// Microfocus vision library
+        /// DataConverter
         /// </summary>
-        private IMicrofocusVisionLibrary MicrofocusVisionLibrary 
-        { 
-            get
-            {
-                return Microfocus.MicrofocusVisionLibrary.GetInstance();
-            } 
-        }
+        private IDataConverter DataConverter { get; }
 
 
         /// <summary>
@@ -64,13 +49,13 @@ namespace Vision4GP.Core.Microfocus
         /// <returns>Requested file</returns>
         public IVisionFile GetVisionFile(string filePath)
         {
-            if (string.IsNullOrEmpty(filePath)) throw new ArgumentNullException(nameof(filePath));
+            ArgumentNullException.ThrowIfNullOrEmpty(filePath);
 
             // Check for the file
             var pathToUse = LoadFullFilePath(filePath);
 
             // Look for the definition
-            var fileName = Path.GetFileName(pathToUse).ToUpperInvariant();
+            var fileName = Path.GetFileName(pathToUse)!.ToUpperInvariant();
             if (!FileDefinitions.ContainsKey(fileName))
             {
                 throw new ApplicationException($"XFD not found for file {fileName}");
@@ -78,7 +63,7 @@ namespace Vision4GP.Core.Microfocus
             var definition = FileDefinitions[fileName];
 
             // Load the file
-            return new MicrofocusVisionFile(definition, pathToUse, MicrofocusVisionLibrary);
+            return new MicrofocusVisionFile(definition, pathToUse, MicrofocusVisionLibrary.GetInstance(), DataConverter);
         }
 
 
@@ -91,13 +76,13 @@ namespace Vision4GP.Core.Microfocus
             if (string.IsNullOrEmpty(filePath)) throw new ArgumentNullException(nameof(filePath));
             if (Path.IsPathFullyQualified(filePath)) return filePath;
 
-            var filePrefix = Environment.GetEnvironmentVariable("FILE_PREFIX");
+            var filePrefix = Settings.FilePrefix;
             if (string.IsNullOrEmpty(filePrefix)) 
             {
                 filePrefix = Environment.CurrentDirectory;
             }
 
-            string firstPath = null;
+            string? firstPath = null;
             foreach (var dir in filePrefix.Split(Path.PathSeparator))
             {
                 var path = Path.Combine(dir, filePath);
@@ -105,7 +90,7 @@ namespace Vision4GP.Core.Microfocus
                 if (File.Exists(path)) return path;
             }
 
-            return firstPath;
+            return firstPath!;
         }
 
 
@@ -124,18 +109,24 @@ namespace Vision4GP.Core.Microfocus
         /// <summary>
         /// Initialize the system
         /// </summary>
-        private void Initialize()
+        public void Initialize()
         {
+            // Get the library instance
+            var library = MicrofocusVisionLibrary.GetInstance();
+
             // Load license file
             var licenseFilePath = GetLicenseFilePath();
-            MicrofocusVisionLibrary.SetLArgv0(licenseFilePath);
+            library.SetLArgv0(licenseFilePath);
 
             // Initialize the runtime
-            var initResult = MicrofocusVisionLibrary.V6_init();
+            var initResult = library.V6_init();
             if (initResult == 0)
             {
                 throw new ApplicationException($"Error initializing microfocus runtime.{Environment.NewLine}License file: {licenseFilePath}");
             }
+
+            // Loads file definitions
+            LoadFileDefinitions();
         }
 
         
@@ -144,12 +135,12 @@ namespace Vision4GP.Core.Microfocus
         /// </summary>
         private string GetLicenseFilePath()
         {
-            // Gets name from Environment
-            var envLicensePath = Environment.GetEnvironmentVariable("VISION_LICENSE_FILE");
-            if (!string.IsNullOrEmpty(envLicensePath) &&
-                File.Exists(envLicensePath))
+            // Gets name from settings
+            var settingLicensePath = Settings.LicenseFilePath;
+            if (!string.IsNullOrEmpty(settingLicensePath) &&
+                File.Exists(settingLicensePath))
             {
-                return envLicensePath;
+                return settingLicensePath;
             }
 
             // Current directory
@@ -162,7 +153,7 @@ namespace Vision4GP.Core.Microfocus
             
             // If not found, license file is missing
             var errorText = "Cannot find any Microfocus license file." + Environment.NewLine +
-                            "VISION_LICENSE_FILE: " + envLicensePath + Environment.NewLine +
+                            "Settings: " + settingLicensePath + Environment.NewLine +
                             "Local license file: " + currentFile + Environment.NewLine;
             throw new ApplicationException(errorText);
         }
@@ -173,7 +164,7 @@ namespace Vision4GP.Core.Microfocus
         /// </summary>
         private void LoadFileDefinitions()
         {
-            var directory = Environment.GetEnvironmentVariable("XFD_DIRECTORY");
+            var directory = Settings.XfdDirectory;
             if (string.IsNullOrEmpty(directory))
             {
                 directory = Environment.CurrentDirectory;
@@ -205,16 +196,17 @@ namespace Vision4GP.Core.Microfocus
 
         private bool disposedValue;
 
+        /// <summary>
+        /// Release all resources used by the instance
+        /// </summary>
+        /// <param name="disposing">True if called by dispose method</param>
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
             {
                 if (disposing)
                 {
-                    if (CurrentInstance.IsValueCreated)
-                    {
-                        MicrofocusVisionLibrary.V6_exit();
-                    }
+                    MicrofocusVisionLibrary.GetInstance().V6_exit();
                 }
 
                 // free unmanaged resources (unmanaged objects) and override finalizer
@@ -230,6 +222,9 @@ namespace Vision4GP.Core.Microfocus
         //     Dispose(disposing: false);
         // }
 
+        /// <summary>
+        /// Release all resources used by the instance
+        /// </summary>
         public void Dispose()
         {
             // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method

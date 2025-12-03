@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading;
-
-namespace Vision4GP.Core.FileSystem.Microfocus
+﻿namespace Vision4GP.Microfocus
 {
 
     /// <summary>
@@ -21,7 +18,7 @@ namespace Vision4GP.Core.FileSystem.Microfocus
         /// <summary>
         /// Mutex to ensure exclusive access to the file system
         /// </summary>
-        private Mutex Mutex { get; } = new Mutex(false, "Global://MicrofocusFileAccessTransactionMutex");
+        private Mutex Mutex { get; } = new Mutex(false, "MicrofocusFileAccessTransactionMutex");
 
 
         /// <summary>

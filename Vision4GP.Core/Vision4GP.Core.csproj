@@ -7,10 +7,10 @@
     <Version>10.0.1</Version>
     <Authors>Gianni Piolanti</Authors>
     <Title>Library for work with Vision File System</Title>
-    <Description>This library allows you to access Vision File System, for now the Microfocus Extend AcuCobol one</Description>
+    <Description>This library allows you to access Vision File System</Description>
     <PackageProjectUrl>https://github.com/PiGi78/Vision4GP</PackageProjectUrl>
     <PackageIcon>4gp.png</PackageIcon>
-    <PackageTags>Vision Cobol</PackageTags>
+    <PackageTags>Vision;Cobol</PackageTags>
     <Copyright>Copyright ©2025 4GP</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <NeutralLanguage>en</NeutralLanguage>

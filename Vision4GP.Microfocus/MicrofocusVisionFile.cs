@@ -1,9 +1,6 @@
-using System;
-using System.IO;
-using System.Linq;
 using Vision4GP.Core.FileSystem;
 
-namespace Vision4GP.Core.Microfocus
+namespace Vision4GP.Microfocus
 {
 
 
@@ -20,12 +17,13 @@ namespace Vision4GP.Core.Microfocus
         /// <param name="fileDefinition">Definition of the file</param>
         /// <param name="filePath">File path</param>
         /// <param name="visionLibrary">Library for manage vision file</param>
-        internal MicrofocusVisionFile(VisionFileDefinition fileDefinition, string filePath, IMicrofocusVisionLibrary visionLibrary)
+        /// <param name="dataConverter">Data converter</param>
+        internal MicrofocusVisionFile(VisionFileDefinition fileDefinition, string filePath, IMicrofocusVisionLibrary visionLibrary, IDataConverter dataConverter)
         {
             FileDefinition = fileDefinition ?? throw new ArgumentNullException(nameof(fileDefinition));
             FilePath = filePath ?? throw new ArgumentNullException(nameof(filePath));
             VisionLibrary = visionLibrary ?? throw new ArgumentNullException(nameof(visionLibrary));
-            DataConverter = new MicrofocusDataConverter(FileDefinition);
+            DataConverter = dataConverter;
         }
 
 
@@ -38,7 +36,7 @@ namespace Vision4GP.Core.Microfocus
         /// <summary>
         /// Data converter
         /// </summary>
-        private MicrofocusDataConverter DataConverter { get; }
+        private IDataConverter DataConverter { get; }
 
 
         /// <summary>
@@ -141,7 +139,6 @@ namespace Vision4GP.Core.Microfocus
             EnsureKeyIndexIsValid(keyIndex);
 
             var recordToUse = record ?? new MicrofocusVisionRecord(FileDefinition, DataConverter);
-
             var microfocusResult = VisionLibrary.V6_start(FilePointer, recordToUse.RawContent, keyIndex, 0, (int)mode);
 
             if (microfocusResult.StatusCode.IsOkStatus()) return true;
@@ -180,9 +177,7 @@ namespace Vision4GP.Core.Microfocus
             // OK
             if (microfocusResult.StatusCode.IsOkStatus())
             {
-                var result = new MicrofocusVisionRecord(FileDefinition, DataConverter);
-                result.RawContent = content;
-                return result;
+                return new MicrofocusVisionRecord(FileDefinition, DataConverter, content);
             }
 
             // NOT FOUND
@@ -208,9 +203,7 @@ namespace Vision4GP.Core.Microfocus
             // OK
             if (microfocusResult.StatusCode.IsOkStatus())
             {
-                var result = new MicrofocusVisionRecord(FileDefinition, DataConverter);
-                result.RawContent = content;
-                return result;
+                return new MicrofocusVisionRecord(FileDefinition, DataConverter, content);
             }
 
             // NOT FOUND
@@ -236,9 +229,7 @@ namespace Vision4GP.Core.Microfocus
             // OK
             if (microfocusResult.StatusCode.IsOkStatus())
             {
-                var result = new MicrofocusVisionRecord(FileDefinition, DataConverter);
-                result.RawContent = content;
-                return result;
+                return new MicrofocusVisionRecord(FileDefinition, DataConverter, content);
             }
 
             // NOT FOUND
@@ -264,9 +255,7 @@ namespace Vision4GP.Core.Microfocus
             // OK
             if (microfocusResult.StatusCode.IsOkStatus())
             {
-                var result = new MicrofocusVisionRecord(FileDefinition, DataConverter);
-                result.RawContent = content;
-                return result;
+                return new MicrofocusVisionRecord(FileDefinition, DataConverter, content);
             }
 
             // NOT FOUND
@@ -297,9 +286,7 @@ namespace Vision4GP.Core.Microfocus
             // OK
             if (microfocusResult.StatusCode.IsOkStatus())
             {
-                var result = new MicrofocusVisionRecord(FileDefinition, DataConverter);
-                result.RawContent = content;
-                return result;
+                return new MicrofocusVisionRecord(FileDefinition, DataConverter, content);
             }
 
             // NOT FOUND
@@ -329,9 +316,7 @@ namespace Vision4GP.Core.Microfocus
             // OK
             if (microfocusResult.StatusCode.IsOkStatus())
             {
-                var result = new MicrofocusVisionRecord(FileDefinition, DataConverter);
-                result.RawContent = content;
-                return result;
+                return new MicrofocusVisionRecord(FileDefinition, DataConverter, content);
             }
 
             // NOT FOUND

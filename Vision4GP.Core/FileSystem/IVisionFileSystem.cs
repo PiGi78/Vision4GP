@@ -11,6 +11,11 @@ namespace Vision4GP.Core.FileSystem
     {
 
         /// <summary>
+        /// Initializes the instance
+        /// </summary>
+        void Initialize();
+
+        /// <summary>
         /// Get a Vision file
         /// </summary>
         /// <param name="filePath">Path of the file</param>
